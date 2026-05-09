@@ -270,7 +270,7 @@ body::after {
   letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;
 }
 .hero-title {
-  font-size:38px; font-weight:900; color:white;
+  font-size:38px; font-weight:900; color:var(--text);
   letter-spacing:-1.5px; line-height:1.1; margin-bottom:10px;
 }
 .hero-title-blue{color:#A5B4FC; display:block;}
@@ -325,7 +325,7 @@ body::after {
 .si-green{background:rgba(5,150,105,0.10); border:1px solid rgba(5,150,105,0.22);}
 .si-amber{background:rgba(217,119,6,0.10); border:1px solid rgba(217,119,6,0.22);}
 .si-purple{background:rgba(139,92,246,0.10); border:1px solid rgba(139,92,246,0.22);}
-.stat-num{font-size:30px; font-weight:900; color:white; letter-spacing:-1.5px; line-height:1;}
+.stat-num{font-size:30px; font-weight:900; color:var(--text); letter-spacing:-1.5px; line-height:1;}
 .stat-label{font-size:12px; color:var(--text-sub); margin-top:5px;}
 .stat-sub{font-size:11px; font-weight:600; margin-top:6px;}
 .sub-green{color:var(--green);}
@@ -487,7 +487,7 @@ body::after {
 }
 .upload-zone:hover{border-color:rgba(99,102,241,0.7); background:rgba(99,102,241,0.12); box-shadow:0 0 30px rgba(99,102,241,0.1);}
 .u-icon{font-size:52px; margin-bottom:14px;}
-.u-title{font-size:17px; font-weight:800; color:white; margin-bottom:6px;}
+.u-title{font-size:17px; font-weight:800; color:var(--text); margin-bottom:6px;}
 .u-sub{font-size:12px; color:var(--text-muted);}
 .tool-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;}
 .tool-btn{
@@ -509,7 +509,7 @@ body::after {
 .step-item:not(:last-child)::after{content:''; position:absolute; top:20px; left:50%; width:100%; height:2px; background:linear-gradient(90deg, rgba(99,102,241,0.4), rgba(99,102,241,0.1)); z-index:0;}
 .s-num{width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--blue), var(--indigo)); color:white; font-size:14px; font-weight:900; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; position:relative; z-index:1; box-shadow:0 4px 16px var(--blue-glow);}
 .s-ico{font-size:22px; margin-bottom:6px;}
-.s-name{font-size:12px; font-weight:800; color:white; margin-bottom:4px;}
+.s-name{font-size:12px; font-weight:800; color:var(--text); margin-bottom:4px;}
 .s-desc{font-size:11px; color:var(--text-muted); line-height:1.4; padding:0 4px;}
 .metric-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;}
 .metric-block{background:rgba(255,255,255,0.55); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; transition:all .2s;}
@@ -594,6 +594,146 @@ body::after {
   50%{transform:translateY(-8px);}
 }
 .float-anim{animation:float 4s ease-in-out infinite;}
+
+/* ══ MOBILE BOTTOM NAV ═══════════════════════════════════ */
+.mobile-nav {
+  display:none;
+  position:fixed; bottom:0; left:0; right:0; z-index:200;
+  background:rgba(255,252,243,0.94);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-top:1px solid var(--border);
+  padding:6px 4px;
+  padding-bottom:max(6px, env(safe-area-inset-bottom));
+  box-shadow:0 -4px 24px rgba(0,0,0,0.08);
+}
+.mobile-nav-inner{display:flex; justify-content:space-around; align-items:center;}
+.mn-item{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:6px 6px; cursor:pointer; transition:all .2s;
+  border-radius:12px; flex:1; max-width:72px;
+}
+.mn-item.active{background:rgba(20,0,230,0.09);}
+.mn-ico{font-size:20px; line-height:1.2;}
+.mn-label{font-size:10px; font-weight:600; color:var(--text-sub); white-space:nowrap;}
+.mn-item.active .mn-label{color:var(--blue); font-weight:800;}
+
+/* ══ MOBILE HAMBURGER ════════════════════════════════════ */
+.mobile-menu-btn{
+  display:none; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:10px;
+  background:rgba(255,255,255,0.6); border:1px solid var(--border);
+  cursor:pointer; font-size:18px; flex-shrink:0;
+  backdrop-filter:blur(10px);
+}
+.sidebar-overlay{
+  display:none; position:fixed; inset:0; z-index:99;
+  background:rgba(0,0,0,0.25); backdrop-filter:blur(2px);
+}
+.sidebar-overlay.show{display:block;}
+
+/* ══ RESPONSIVE ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Sidebar → slide-in overlay */
+  .sidebar{
+    transform:translateX(-100%); transition:transform .3s cubic-bezier(.4,0,.2,1);
+    z-index:150;
+  }
+  .sidebar.mobile-open{transform:translateX(0);}
+
+  /* Main takes full width */
+  .main{margin-left:0 !important;}
+
+  /* Bottom nav visible */
+  .mobile-nav{display:block;}
+  .mobile-menu-btn{display:flex;}
+
+  /* Topbar */
+  .topbar{padding:0 14px; gap:10px; height:54px;}
+  .topbar-title{font-size:14px; font-weight:700;}
+  .topbar-search{display:none;}
+  .topbar-btn{padding:8px 14px; font-size:12px;}
+  .topbar-btn .btn-label{display:none;}
+
+  /* Pages */
+  .page{padding:14px 14px 88px;}
+
+  /* Hero */
+  .hero{flex-direction:column; padding:22px 18px; gap:0; align-items:flex-start;}
+  .hero-illus{display:none;}
+  .hero-title{font-size:26px; letter-spacing:-.8px;}
+  .hero-sub{max-width:100%; font-size:12px;}
+  .hero-cta{width:100%; justify-content:center; margin-top:14px;}
+  .plus{display:none;}
+
+  /* Stat grid: 2 col */
+  .stat-grid{grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;}
+  .stat-card{padding:16px 14px;}
+  .stat-num{font-size:24px;}
+  .stat-label{font-size:11px;}
+  .stat-sub{font-size:10px;}
+  .stat-icon{width:38px; height:38px; font-size:18px; border-radius:10px;}
+
+  /* Layout grids → single column */
+  .c-grid{grid-template-columns:1fr;}
+  .fac-grid{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .sync-grid{grid-template-columns:1fr;}
+  .sync-mini-grid{grid-template-columns:1fr 1fr;}
+  .tool-grid{grid-template-columns:1fr 1fr;}
+  .metric-grid{grid-template-columns:1fr 1fr; gap:8px;}
+
+  /* Cards */
+  .card{overflow:visible;}
+  .card-head{padding:12px 16px;}
+  .card-body{padding:14px 16px; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .card-title{font-size:13px;}
+
+  /* Faculty table: scrollable */
+  .f-table{min-width:560px;}
+
+  /* Profile */
+  .profile-hero{flex-direction:column; padding:20px 18px; align-items:flex-start; gap:14px;}
+  .ph-meta{margin-left:0; text-align:left; display:flex; align-items:center; gap:16px;}
+  .ph-score{font-size:38px;}
+  .profile-grid{grid-template-columns:1fr;}
+
+  /* Step flow → vertical */
+  .step-flow{flex-direction:column; gap:0; padding:0;}
+  .step-item{display:grid; grid-template-columns:40px 28px 1fr; align-items:center; gap:10px; padding:10px 0; text-align:left;}
+  .step-item:not(:last-child){border-bottom:1px solid var(--border);}
+  .step-item:not(:last-child)::after{display:none;}
+  .s-num{margin:0; width:32px; height:32px; font-size:12px; flex-shrink:0;}
+  .s-ico{font-size:20px; margin-bottom:0;}
+  .s-name{font-size:12px; margin-bottom:2px;}
+  .s-desc{font-size:11px; padding:0;}
+
+  /* Prog row */
+  .prog-label{width:58px; font-size:11px;}
+  .prog-val{font-size:11px; width:30px;}
+
+  /* eval bar */
+  .eb-label{width:70px; font-size:11px;}
+  .eb-score{font-size:11px; width:30px;}
+
+  /* AI result cards */
+  .ai-result-card{gap:12px; padding:14px;}
+  .ai-match-pct{font-size:20px;}
+
+  /* Notif bottom offset for mobile nav */
+  .notif{bottom:80px; right:14px; left:14px; text-align:center;}
+
+  /* Radar chart container */
+  #radarChart{width:100% !important; height:auto !important;}
+}
+
+@media (max-width: 400px) {
+  .stat-grid{grid-template-columns:1fr;}
+  .sync-mini-grid{grid-template-columns:1fr;}
+  .tool-grid{grid-template-columns:1fr 1fr;}
+  .metric-grid{grid-template-columns:1fr;}
+  .topbar-btn{display:none;}
+}
 </style>
 </head>
 <body>
@@ -626,12 +766,13 @@ body::after {
 <!-- ████ MAIN ████████████████████████████████████████████ -->
 <div class="main">
   <header class="topbar">
+    <div class="mobile-menu-btn" onclick="toggleSidebar()" title="메뉴">☰</div>
     <div class="topbar-title" id="topbar-title">대시보드</div>
     <div class="topbar-search">
       <span style="color:var(--text-muted)">🔍</span>
       <input type="text" placeholder="교수명, 전공, 태그 검색...">
     </div>
-    <button class="topbar-btn" onclick="nav('ai')">✨ AI 추천</button>
+    <button class="topbar-btn" onclick="nav('ai')">✨ <span class="btn-label">AI 추천</span></button>
     <div class="topbar-avatar">김</div>
   </header>
 
@@ -959,12 +1100,12 @@ body::after {
         <div style="margin-top:32px;">
           <div style="font-size:12px;font-weight:800;color:var(--text-sub);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px;">5개 표준 평가 카테고리</div>
           <div class="metric-grid">
-            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🎓</div><div style="font-size:12px;font-weight:800;color:white;">전문성</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">지식 · 경험 · 최신성</div></div>
-            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">📢</div><div style="font-size:12px;font-weight:800;color:white;">전달력</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">발표 · 이해 용이성</div></div>
-            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🔧</div><div style="font-size:12px;font-weight:800;color:white;">실무 연계성</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">현업 적용 가능성</div></div>
-            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🤝</div><div style="font-size:12px;font-weight:800;color:white;">상호작용</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Q&A · 참여 유도</div></div>
-            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">⭐</div><div style="font-size:12px;font-weight:800;color:white;">전반 만족도</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">재추천 · 재수강 의향</div></div>
-            <div class="metric-block highlight"><div style="font-size:24px;margin-bottom:6px;">🤖</div><div style="font-size:12px;font-weight:800;color:white;">AI 정규화</div><div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:3px;">모든 척도 → 100점</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🎓</div><div style="font-size:12px;font-weight:800;color:var(--text);">전문성</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">지식 · 경험 · 최신성</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">📢</div><div style="font-size:12px;font-weight:800;color:var(--text);">전달력</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">발표 · 이해 용이성</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🔧</div><div style="font-size:12px;font-weight:800;color:var(--text);">실무 연계성</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">현업 적용 가능성</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🤝</div><div style="font-size:12px;font-weight:800;color:var(--text);">상호작용</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Q&A · 참여 유도</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">⭐</div><div style="font-size:12px;font-weight:800;color:var(--text);">전반 만족도</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">재추천 · 재수강 의향</div></div>
+            <div class="metric-block highlight"><div style="font-size:24px;margin-bottom:6px;">🤖</div><div style="font-size:12px;font-weight:800;color:var(--text);">AI 정규화</div><div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:3px;">모든 척도 → 100점</div></div>
           </div>
         </div>
       </div>
@@ -1047,6 +1188,35 @@ body::after {
   </div>
 </div>
 
+<!-- ████ SIDEBAR OVERLAY (Mobile) ████████████████████████ -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ████ MOBILE BOTTOM NAV █████████████████████████████ -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <div class="mn-item active" id="mn-dashboard" onclick="nav('dashboard')">
+      <span class="mn-ico">📊</span>
+      <span class="mn-label">대시보드</span>
+    </div>
+    <div class="mn-item" id="mn-search" onclick="nav('search')">
+      <span class="mn-ico">🔍</span>
+      <span class="mn-label">검색</span>
+    </div>
+    <div class="mn-item" id="mn-ai" onclick="nav('ai')">
+      <span class="mn-ico">✨</span>
+      <span class="mn-label">AI추천</span>
+    </div>
+    <div class="mn-item" id="mn-eval" onclick="nav('eval')">
+      <span class="mn-ico">📋</span>
+      <span class="mn-label">평가</span>
+    </div>
+    <div class="mn-item" id="mn-sync" onclick="nav('sync')">
+      <span class="mn-ico">🔗</span>
+      <span class="mn-label">연동</span>
+    </div>
+  </div>
+</nav>
+
 <div class="notif" id="notif"></div>
 
 <script>
@@ -1072,12 +1242,26 @@ const pageNames = {dashboard:'대시보드',search:'교강사 검색',profile:'�
 function nav(page) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.mn-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('page-'+page)?.classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')===`nav('${page}')`)n.classList.add('active');});
+  const mnItem = document.getElementById('mn-'+page);
+  if(mnItem) mnItem.classList.add('active');
   document.getElementById('topbar-title').textContent=pageNames[page]||'';
   if(page==='search')renderFaculty();
   if(page==='profile')renderProfile();
   if(page==='ai'){document.getElementById('ai-loading').classList.remove('show');document.getElementById('ai-results').classList.remove('show');}
+  closeSidebar();
+}
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  sb.classList.toggle('mobile-open');
+  ov.classList.toggle('show');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
 }
 
 function renderFaculty() {

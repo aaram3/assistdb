@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aSSIST University 통합 교강사진 DB</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#1400E6; --blue-bright:#3D2EFF; --blue-glow:rgba(20,0,230,0.45);
+  --indigo:#6366F1; --indigo-glow:rgba(99,102,241,0.35);
+  --purple:#8B5CF6; --purple-glow:rgba(139,92,246,0.3);
+  --glass:rgba(255,255,255,0.06); --glass-md:rgba(255,255,255,0.10);
+  --glass-strong:rgba(255,255,255,0.15); --glass-card:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.12); --border-bright:rgba(255,255,255,0.22);
+  --text:rgba(255,255,255,0.95); --text-sub:rgba(255,255,255,0.60);
+  --text-muted:rgba(255,255,255,0.35);
+  --green:#10B981; --green-glow:rgba(16,185,129,0.35);
+  --amber:#F59E0B; --amber-glow:rgba(245,158,11,0.35);
+  --red:#EF4444;
+  --sidebar-w:248px;
+  --radius:18px; --radius-sm:12px;
+  --shadow-glass:0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+  --shadow-card:0 20px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+  --shadow-glow:0 0 40px var(--blue-glow);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+
+/* ══ BACKGROUND ══════════════════════════════════════════ */
+body {
+  font-family:'Noto Sans KR',sans-serif;
+  background:#070B24;
+  color:var(--text);
+  display:flex;
+  min-height:100vh;
+  font-size:14px;
+  position:relative;
+  overflow-x:hidden;
+}
+/* Mesh gradient blobs */
+body::before {
+  content:'';
+  position:fixed; top:-200px; left:-150px;
+  width:700px; height:700px;
+  background:radial-gradient(circle, rgba(99,102,241,0.28) 0%, transparent 65%);
+  pointer-events:none; z-index:0;
+  animation:blobFloat 12s ease-in-out infinite alternate;
+}
+body::after {
+  content:'';
+  position:fixed; bottom:-250px; right:-150px;
+  width:700px; height:700px;
+  background:radial-gradient(circle, rgba(20,0,230,0.32) 0%, transparent 65%);
+  pointer-events:none; z-index:0;
+  animation:blobFloat 16s ease-in-out infinite alternate-reverse;
+}
+.blob-mid {
+  position:fixed; top:40%; left:50%; transform:translateX(-50%);
+  width:500px; height:500px;
+  background:radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 65%);
+  pointer-events:none; z-index:0;
+  animation:blobFloat 20s ease-in-out infinite;
+}
+@keyframes blobFloat {
+  from{transform:translate(0,0) scale(1);}
+  to{transform:translate(30px,20px) scale(1.08);}
+}
+
+/* ══ SIDEBAR ═════════════════════════════════════════════ */
+.sidebar {
+  width:var(--sidebar-w);
+  background:rgba(7,11,36,0.7);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  position:fixed; top:0; left:0; height:100vh;
+  z-index:100;
+}
+.sidebar-logo {
+  padding:26px 22px 22px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.logo-img {
+  width:100%; max-width:150px; height:auto; display:block;
+  filter:brightness(0) invert(1);
+  opacity:.92;
+}
+.logo-badge {
+  margin-top:10px;
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(20,0,230,0.25);
+  border:1px solid rgba(99,102,241,0.4);
+  border-radius:20px; padding:4px 12px;
+  font-size:10.5px; font-weight:700; color:#A5B4FC;
+  letter-spacing:.3px;
+}
+.nav-section-label {
+  padding:18px 22px 6px;
+  font-size:10px; font-weight:700; color:var(--text-muted);
+  letter-spacing:1.3px; text-transform:uppercase;
+}
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:11px 22px;
+  font-size:13.5px; font-weight:500; color:var(--text-sub);
+  cursor:pointer; transition:all .2s;
+  border-left:3px solid transparent;
+  margin:1px 0; position:relative;
+}
+.nav-item:hover {
+  background:rgba(255,255,255,0.06);
+  color:var(--text);
+}
+.nav-item.active {
+  background:rgba(20,0,230,0.18);
+  color:#A5B4FC; font-weight:700;
+  border-left-color:var(--indigo);
+}
+.nav-item.active::after {
+  content:'';
+  position:absolute; right:0; top:50%; transform:translateY(-50%);
+  width:3px; height:60%; background:var(--indigo);
+  border-radius:2px; opacity:.6;
+}
+.ni{font-size:16px; width:20px; text-align:center;}
+.sidebar-footer {
+  margin-top:auto; padding:18px 22px;
+  border-top:1px solid var(--border);
+  font-size:11px; color:var(--text-muted); line-height:1.7;
+}
+
+/* ══ MAIN ════════════════════════════════════════════════ */
+.main {
+  margin-left:var(--sidebar-w); flex:1;
+  min-height:100vh; display:flex; flex-direction:column;
+  position:relative; z-index:1;
+}
+
+/* ══ TOPBAR ══════════════════════════════════════════════ */
+.topbar {
+  height:62px;
+  background:rgba(7,11,36,0.6);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 32px; gap:16px;
+  position:sticky; top:0; z-index:50;
+}
+.topbar-title {
+  font-size:16px; font-weight:800; color:var(--text);
+  letter-spacing:-.3px; flex:1;
+}
+.topbar-search {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--border);
+  backdrop-filter:blur(10px);
+  border-radius:24px; padding:7px 16px; width:260px;
+  transition:all .2s;
+}
+.topbar-search:focus-within {
+  border-color:rgba(99,102,241,0.5);
+  background:rgba(255,255,255,0.10);
+  box-shadow:0 0 0 3px rgba(99,102,241,0.15);
+}
+.topbar-search input {
+  border:none; background:transparent; outline:none;
+  font-size:13px; color:var(--text); font-family:inherit; width:100%;
+}
+.topbar-search input::placeholder{color:var(--text-muted);}
+.topbar-btn {
+  display:flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg, var(--blue) 0%, var(--indigo) 100%);
+  color:white; border:none; border-radius:24px;
+  padding:9px 20px; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all .2s; font-family:inherit;
+  box-shadow:0 4px 20px var(--blue-glow);
+}
+.topbar-btn:hover {
+  transform:translateY(-1px);
+  box-shadow:0 6px 28px var(--blue-glow);
+}
+.topbar-avatar {
+  width:34px; height:34px;
+  background:linear-gradient(135deg, var(--blue), var(--purple));
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:white; cursor:pointer;
+  box-shadow:0 2px 12px var(--blue-glow);
+}
+
+/* ══ PAGE ════════════════════════════════════════════════ */
+.page{display:none; padding:28px 32px;}
+.page.active{display:block;}
+
+/* ══ GLASS CARD ══════════════════════════════════════════ */
+.card {
+  background:var(--glass-card);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-glass);
+  overflow:hidden; margin-bottom:20px;
+  transition:transform .25s, box-shadow .25s;
+  transform-style:preserve-3d;
+}
+.card:hover {
+  transform:perspective(1200px) rotateX(1deg) rotateY(-1deg) translateZ(6px);
+  box-shadow:0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(99,102,241,0.12), inset 0 1px 0 rgba(255,255,255,0.15);
+  border-color:rgba(255,255,255,0.18);
+}
+.card:last-child{margin-bottom:0;}
+.card-head {
+  padding:16px 22px;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(255,255,255,0.03);
+}
+.card-title {
+  font-size:14px; font-weight:800; color:var(--text);
+  display:flex; align-items:center; gap:8px;
+}
+.ct-ico {
+  width:28px; height:28px; border-radius:8px;
+  background:rgba(99,102,241,0.2);
+  border:1px solid rgba(99,102,241,0.3);
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.card-link {
+  font-size:12px; color:#A5B4FC; font-weight:600;
+  cursor:pointer; transition:color .15s;
+}
+.card-link:hover{color:white;}
+.card-body{padding:20px 22px;}
+
+/* ══ HERO ════════════════════════════════════════════════ */
+.hero {
+  background:var(--glass-card);
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:36px 40px; margin-bottom:24px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:relative; overflow:hidden;
+  box-shadow:var(--shadow-glass);
+  transform-style:preserve-3d;
+}
+.hero::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:350px; height:350px;
+  background:radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 65%);
+  pointer-events:none;
+}
+.hero::after {
+  content:''; position:absolute; bottom:-40px; left:30%;
+  width:200px; height:200px;
+  background:radial-gradient(circle, rgba(20,0,230,0.15) 0%, transparent 65%);
+  pointer-events:none;
+}
+.plus {
+  position:absolute; color:rgba(165,180,252,0.4);
+  font-size:24px; font-weight:300; pointer-events:none; line-height:1;
+}
+.hero-label {
+  font-size:11px; font-weight:700; color:#818CF8;
+  letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px;
+}
+.hero-title {
+  font-size:38px; font-weight:900; color:white;
+  letter-spacing:-1.5px; line-height:1.1; margin-bottom:10px;
+}
+.hero-title-blue{color:#A5B4FC; display:block;}
+.hero-sub {
+  font-size:13px; color:var(--text-sub); line-height:1.75; max-width:380px;
+}
+.hero-cta {
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(135deg, var(--blue) 0%, var(--indigo) 100%);
+  color:white; border:none; border-radius:24px;
+  padding:11px 24px; font-size:13px; font-weight:700;
+  cursor:pointer; font-family:inherit; margin-top:18px;
+  transition:all .2s;
+  box-shadow:0 4px 20px var(--blue-glow);
+}
+.hero-cta:hover{transform:translateY(-2px); box-shadow:0 8px 30px var(--blue-glow);}
+.hero-illus{flex-shrink:0; position:relative; z-index:1;}
+
+/* ══ STAT CARDS ══════════════════════════════════════════ */
+.stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;}
+.stat-card {
+  background:var(--glass-card);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px;
+  display:flex; align-items:flex-start; gap:14px;
+  transition:all .25s; cursor:default;
+  position:relative; overflow:hidden;
+  box-shadow:var(--shadow-glass);
+  transform-style:preserve-3d;
+}
+.stat-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+.stat-card:hover {
+  transform:perspective(800px) rotateX(3deg) translateZ(8px);
+  border-color:var(--border-bright);
+}
+.stat-card.blue-glow:hover{box-shadow:var(--shadow-glass), 0 0 30px rgba(20,0,230,0.2);}
+.stat-card.green-glow:hover{box-shadow:var(--shadow-glass), 0 0 30px var(--green-glow);}
+.stat-card.amber-glow:hover{box-shadow:var(--shadow-glass), 0 0 30px var(--amber-glow);}
+.stat-card.purple-glow:hover{box-shadow:var(--shadow-glass), 0 0 30px var(--purple-glow);}
+.stat-icon {
+  width:46px; height:46px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+.si-blue{background:rgba(20,0,230,0.25); border:1px solid rgba(20,0,230,0.4);}
+.si-green{background:rgba(16,185,129,0.2); border:1px solid rgba(16,185,129,0.35);}
+.si-amber{background:rgba(245,158,11,0.2); border:1px solid rgba(245,158,11,0.35);}
+.si-purple{background:rgba(139,92,246,0.2); border:1px solid rgba(139,92,246,0.35);}
+.stat-num{font-size:30px; font-weight:900; color:white; letter-spacing:-1.5px; line-height:1;}
+.stat-label{font-size:12px; color:var(--text-sub); margin-top:5px;}
+.stat-sub{font-size:11px; font-weight:600; margin-top:6px;}
+.sub-green{color:var(--green);}
+.sub-blue{color:#A5B4FC;}
+.sub-amber{color:var(--amber);}
+
+/* ══ LAYOUT GRIDS ════════════════════════════════════════ */
+.c-grid{display:grid; grid-template-columns:1fr 340px; gap:20px;}
+.content-col{}
+
+/* ══ BADGE ═══════════════════════════════════════════════ */
+.badge{display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;}
+.b-blue{background:rgba(20,0,230,0.25); color:#A5B4FC; border:1px solid rgba(99,102,241,0.3);}
+.b-green{background:rgba(16,185,129,0.18); color:#6EE7B7; border:1px solid rgba(16,185,129,0.3);}
+.b-amber{background:rgba(245,158,11,0.18); color:#FCD34D; border:1px solid rgba(245,158,11,0.3);}
+.b-red{background:rgba(239,68,68,0.18); color:#FCA5A5; border:1px solid rgba(239,68,68,0.3);}
+.b-gray{background:rgba(255,255,255,0.08); color:var(--text-sub); border:1px solid var(--border);}
+.b-purple{background:rgba(139,92,246,0.18); color:#C4B5FD; border:1px solid rgba(139,92,246,0.3);}
+
+/* ══ FACULTY TABLE ═══════════════════════════════════════ */
+.f-table{width:100%; border-collapse:collapse;}
+.f-table th{padding:9px 12px; font-size:10.5px; font-weight:700; color:var(--text-muted); letter-spacing:.8px; text-transform:uppercase; text-align:left; border-bottom:1px solid var(--border);}
+.f-table td{padding:13px 12px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.05); vertical-align:middle;}
+.f-table tr:last-child td{border-bottom:none;}
+.f-table tr:hover td{background:rgba(255,255,255,0.04);}
+.f-name{font-weight:700; color:white;}
+.f-org{font-size:11px; color:var(--text-muted); margin-top:2px;}
+.tag{display:inline-flex; align-items:center; padding:2px 8px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.25); border-radius:20px; font-size:11px; color:#A5B4FC; font-weight:500; margin:2px 2px 2px 0;}
+.score-chip{display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:50%; background:rgba(20,0,230,0.25); border:1px solid rgba(99,102,241,0.4); font-size:12px; font-weight:900; color:#A5B4FC; box-shadow:0 0 10px rgba(20,0,230,0.2);}
+.sync-src{display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--text-muted);}
+.sync-dot{width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; box-shadow:0 0 6px var(--green);}
+
+/* ══ ALERTS ══════════════════════════════════════════════ */
+.alert{padding:13px 16px; border-radius:12px; margin-bottom:10px; border-left:3px solid; display:flex; gap:12px; backdrop-filter:blur(10px);}
+.alert:last-child{margin-bottom:0;}
+.al-warn{background:rgba(245,158,11,0.1); border-color:var(--amber);}
+.al-good{background:rgba(16,185,129,0.1); border-color:var(--green);}
+.al-danger{background:rgba(239,68,68,0.1); border-color:var(--red);}
+.al-info{background:rgba(99,102,241,0.1); border-color:var(--indigo);}
+.a-ico{font-size:18px; flex-shrink:0;}
+.a-title{font-size:12px; font-weight:800; color:white; margin-bottom:2px;}
+.a-desc{font-size:11px; color:var(--text-sub); line-height:1.5;}
+.a-conf{font-size:10px; font-weight:700; margin-top:4px;}
+.a-conf.green{color:var(--green);}
+.a-conf.amber{color:var(--amber);}
+
+/* ══ SYNC MINI ═══════════════════════════════════════════ */
+.sync-mini-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.sync-mini{background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; padding:14px; display:flex; align-items:center; gap:10px; backdrop-filter:blur(10px);}
+.sm-ico{width:36px; height:36px; border-radius:10px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.25); display:flex; align-items:center; justify-content:center; font-size:18px;}
+.sm-name{font-size:12px; font-weight:700; color:white;}
+.sm-status{font-size:10px; color:var(--green); font-weight:600; margin-top:2px;}
+
+/* ══ SEARCH PAGE ═════════════════════════════════════════ */
+.search-bar{
+  background:var(--glass-card); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 22px; box-shadow:var(--shadow-glass); margin-bottom:20px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.s-input{
+  flex:1; min-width:200px; display:flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,0.07); border:1px solid var(--border);
+  border-radius:24px; padding:9px 18px;
+}
+.s-input input{border:none; background:transparent; outline:none; font-size:13px; font-family:inherit; color:white; width:100%;}
+.s-input input::placeholder{color:var(--text-muted);}
+.f-select{
+  padding:9px 14px; border:1px solid var(--border); border-radius:24px;
+  font-size:12px; font-family:inherit; color:var(--text-sub); background:rgba(255,255,255,0.07); outline:none; cursor:pointer;
+}
+.f-select option{background:#0D0830; color:white;}
+.fac-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+.fac-card{
+  background:var(--glass-card); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:22px 20px; box-shadow:var(--shadow-glass);
+  transition:all .25s; cursor:pointer; position:relative; overflow:hidden;
+  transform-style:preserve-3d;
+}
+.fac-card::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+}
+.fac-card:hover{
+  transform:perspective(1000px) rotateX(3deg) rotateY(-2deg) translateZ(10px) scale(1.01);
+  border-color:rgba(165,180,252,0.35);
+  box-shadow:0 24px 70px rgba(0,0,0,0.55), 0 0 40px rgba(99,102,241,0.18);
+}
+.fc-top{display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;}
+.fc-avatar{width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:white; flex-shrink:0; box-shadow:0 4px 14px rgba(0,0,0,0.4);}
+.fc-score{background:rgba(20,0,230,0.25); border:1px solid rgba(99,102,241,0.35); border-radius:12px; padding:6px 14px; font-size:18px; font-weight:900; color:#A5B4FC; box-shadow:0 0 14px rgba(20,0,230,0.2);}
+.fc-score small{font-size:11px; font-weight:500; color:var(--text-muted); margin-left:1px;}
+.fc-name{font-size:16px; font-weight:800; color:white;}
+.fc-org{font-size:11px; color:var(--text-muted); margin-top:3px;}
+.fc-tags{margin:10px 0 14px; display:flex; flex-wrap:wrap; gap:4px;}
+.fc-footer{display:flex; align-items:center; justify-content:space-between; padding-top:14px; border-top:1px solid var(--border);}
+
+/* ══ AI PAGE ══════════════════════════════════════════════ */
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;}
+.form-label{font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:7px; display:block;}
+.form-input,.form-select,.form-textarea{
+  width:100%; padding:11px 16px;
+  border:1px solid var(--border); border-radius:12px;
+  font-size:13px; font-family:inherit; color:white;
+  background:rgba(255,255,255,0.07); outline:none; transition:all .15s;
+}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted);}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:rgba(99,102,241,0.6); background:rgba(255,255,255,0.10);
+  box-shadow:0 0 0 3px rgba(99,102,241,0.15);
+}
+.form-select option{background:#0D0830;}
+.form-textarea{resize:vertical; min-height:88px;}
+.form-btn{
+  width:100%; padding:14px;
+  background:linear-gradient(135deg, var(--blue) 0%, var(--indigo) 100%);
+  color:white; border:none; border-radius:12px;
+  font-size:14px; font-weight:800; cursor:pointer; font-family:inherit;
+  transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:0 4px 20px var(--blue-glow);
+}
+.form-btn:hover{transform:translateY(-2px); box-shadow:0 8px 30px var(--blue-glow);}
+.ai-loading{display:none; flex-direction:column; align-items:center; padding:40px; color:var(--text-sub); gap:16px;}
+.ai-loading.show{display:flex;}
+.ai-spinner{width:36px; height:36px; border:3px solid rgba(99,102,241,0.2); border-top-color:var(--indigo); border-radius:50%; animation:spin .8s linear infinite; box-shadow:0 0 20px var(--indigo-glow);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-results{display:none;}
+.ai-results.show{display:block;}
+.ai-result-card{
+  background:rgba(255,255,255,0.05); backdrop-filter:blur(16px);
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px; margin-bottom:12px;
+  display:flex; align-items:center; gap:16px;
+  transition:all .2s; cursor:pointer; transform-style:preserve-3d;
+}
+.ai-result-card:hover{
+  border-color:rgba(165,180,252,0.35);
+  box-shadow:0 12px 40px rgba(0,0,0,0.4), 0 0 20px rgba(99,102,241,0.15);
+  transform:perspective(800px) rotateX(1deg) translateZ(4px);
+}
+.ai-rank{width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:900; flex-shrink:0;}
+.ar1{background:linear-gradient(135deg, var(--blue), var(--indigo)); color:white; box-shadow:0 4px 14px var(--blue-glow);}
+.ar2{background:rgba(99,102,241,0.2); border:1px solid rgba(99,102,241,0.4); color:#A5B4FC;}
+.ar3{background:rgba(255,255,255,0.07); border:1px solid var(--border); color:var(--text-sub);}
+.ai-result-info{flex:1;}
+.ai-result-name{font-size:15px; font-weight:800; color:white;}
+.ai-result-org{font-size:12px; color:var(--text-muted); margin-top:2px;}
+.ai-result-reason{font-size:12px; color:var(--text-sub); margin-top:7px; line-height:1.55;}
+.ai-match{display:flex; flex-direction:column; align-items:center; flex-shrink:0;}
+.ai-match-pct{font-size:24px; font-weight:900; color:#A5B4FC;}
+.ai-match-lbl{font-size:10px; color:var(--text-muted); font-weight:600;}
+
+/* ══ UPLOAD PAGE ══════════════════════════════════════════ */
+.upload-zone{
+  border:2px dashed rgba(99,102,241,0.35); border-radius:var(--radius);
+  padding:52px 24px; text-align:center; cursor:pointer;
+  transition:all .2s; background:rgba(99,102,241,0.05); margin-bottom:20px;
+}
+.upload-zone:hover{border-color:rgba(99,102,241,0.7); background:rgba(99,102,241,0.12); box-shadow:0 0 30px rgba(99,102,241,0.1);}
+.u-icon{font-size:52px; margin-bottom:14px;}
+.u-title{font-size:17px; font-weight:800; color:white; margin-bottom:6px;}
+.u-sub{font-size:12px; color:var(--text-muted);}
+.tool-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;}
+.tool-btn{
+  background:rgba(255,255,255,0.05); border:1px solid var(--border);
+  border-radius:14px; padding:20px 12px; text-align:center; cursor:pointer;
+  transition:all .2s; transform-style:preserve-3d;
+}
+.tool-btn:hover{
+  border-color:rgba(99,102,241,0.4); background:rgba(99,102,241,0.12);
+  transform:perspective(600px) rotateX(4deg) translateZ(6px);
+  box-shadow:0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(99,102,241,0.12);
+}
+.tb-ico{font-size:30px; margin-bottom:8px;}
+.tb-name{font-size:13px; font-weight:700; color:white;}
+.tb-sub{font-size:11px; color:var(--text-muted); margin-top:3px;}
+/* Step flow */
+.step-flow{display:flex; align-items:flex-start; gap:0; position:relative; padding:10px 0;}
+.step-item{flex:1; text-align:center; position:relative;}
+.step-item:not(:last-child)::after{content:''; position:absolute; top:20px; left:50%; width:100%; height:2px; background:linear-gradient(90deg, rgba(99,102,241,0.4), rgba(99,102,241,0.1)); z-index:0;}
+.s-num{width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--blue), var(--indigo)); color:white; font-size:14px; font-weight:900; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; position:relative; z-index:1; box-shadow:0 4px 16px var(--blue-glow);}
+.s-ico{font-size:22px; margin-bottom:6px;}
+.s-name{font-size:12px; font-weight:800; color:white; margin-bottom:4px;}
+.s-desc{font-size:11px; color:var(--text-muted); line-height:1.4; padding:0 4px;}
+.metric-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;}
+.metric-block{background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; transition:all .2s;}
+.metric-block:hover{background:rgba(99,102,241,0.12); border-color:rgba(99,102,241,0.3);}
+.metric-block.highlight{background:linear-gradient(135deg, rgba(20,0,230,0.35), rgba(99,102,241,0.25)); border-color:rgba(99,102,241,0.4); box-shadow:0 0 20px rgba(20,0,230,0.2);}
+
+/* ══ SYNC PAGE ════════════════════════════════════════════ */
+.sync-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.sync-card{
+  background:var(--glass-card); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:24px; box-shadow:var(--shadow-glass); transition:all .25s;
+  transform-style:preserve-3d;
+}
+.sync-card:hover{
+  transform:perspective(1000px) rotateX(2deg) rotateY(-1.5deg) translateZ(8px);
+  border-color:var(--border-bright);
+}
+.sc-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
+.sc-name{display:flex; align-items:center; gap:10px; font-size:15px; font-weight:800; color:white;}
+.sc-ico{width:36px; height:36px; border-radius:10px; background:rgba(99,102,241,0.18); border:1px solid rgba(99,102,241,0.3); display:flex; align-items:center; justify-content:center; font-size:18px;}
+.sc-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;}
+.sc-stat{text-align:center;}
+.sc-num{font-size:22px; font-weight:900; color:white;}
+.sc-lbl{font-size:11px; color:var(--text-muted); margin-top:2px;}
+.sc-btn{width:100%; padding:10px; border-radius:10px; border:1px solid rgba(99,102,241,0.4); background:rgba(99,102,241,0.1); color:#A5B4FC; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .2s;}
+.sc-btn:hover{background:linear-gradient(135deg, var(--blue), var(--indigo)); color:white; border-color:transparent; box-shadow:0 4px 20px var(--blue-glow);}
+.sc-btn.warn{border-color:rgba(245,158,11,0.4); color:var(--amber); background:rgba(245,158,11,0.08);}
+.sc-btn.warn:hover{background:var(--amber); color:white; border-color:transparent;}
+.prog-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+.prog-label{font-size:12px; color:var(--text-muted); width:80px; flex-shrink:0;}
+.prog-track{flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;}
+.prog-fill{height:100%; border-radius:4px; background:linear-gradient(90deg, var(--blue), var(--indigo));}
+.prog-fill.green{background:linear-gradient(90deg, var(--green), #34D399);}
+.prog-fill.amber{background:linear-gradient(90deg, var(--amber), #FCD34D);}
+.prog-val{font-size:12px; font-weight:700; color:#A5B4FC; width:36px; text-align:right; flex-shrink:0;}
+
+/* ══ PROFILE PAGE ════════════════════════════════════════ */
+.profile-hero{
+  background:var(--glass-card); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:32px 36px; box-shadow:var(--shadow-glass); margin-bottom:20px;
+  display:flex; align-items:center; gap:28px; position:relative; overflow:hidden;
+}
+.profile-hero::before{content:''; position:absolute; top:0; right:0; width:250px; height:100%; background:linear-gradient(90deg, transparent, rgba(99,102,241,0.08)); pointer-events:none;}
+.ph-avatar{width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:900; color:white; flex-shrink:0; box-shadow:0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(20,0,230,0.3);}
+.ph-name{font-size:24px; font-weight:900; color:white; letter-spacing:-.5px;}
+.ph-org{font-size:13px; color:var(--text-muted); margin-top:4px;}
+.ph-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+.ph-meta{margin-left:auto; text-align:right; position:relative; z-index:1;}
+.ph-score{font-size:52px; font-weight:900; color:#A5B4FC; letter-spacing:-2px; line-height:1; text-shadow:0 0 30px var(--indigo-glow);}
+.ph-score-lbl{font-size:12px; color:var(--text-muted); margin-top:4px;}
+.profile-grid{display:grid; grid-template-columns:1fr 320px; gap:20px;}
+.eval-bar-row{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+.eb-label{font-size:12px; font-weight:600; color:var(--text-sub); width:90px; flex-shrink:0;}
+.eb-track{flex:1; height:8px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden;}
+.eb-fill{height:100%; border-radius:4px; background:linear-gradient(90deg, var(--blue), var(--indigo));}
+.eb-score{font-size:12px; font-weight:800; color:#A5B4FC; width:38px; text-align:right; flex-shrink:0;}
+.qual-item{padding:14px 16px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:12px; margin-bottom:10px; backdrop-filter:blur(10px);}
+.qi-tag{margin-bottom:6px;}
+.qi-text{font-size:12px; color:var(--text-sub); line-height:1.6;}
+.qi-conf{font-size:10px; font-weight:700; color:#A5B4FC; margin-top:5px;}
+.data-row{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);}
+.data-row:last-child{border-bottom:none;}
+.info-num{display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--blue), var(--indigo)); color:white; font-size:13px; font-weight:900; flex-shrink:0; box-shadow:0 2px 10px var(--blue-glow);}
+
+/* ══ NOTIF ════════════════════════════════════════════════ */
+.notif{
+  position:fixed; bottom:24px; right:24px;
+  background:rgba(13,8,48,0.9); backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  color:white; padding:12px 20px; border-radius:12px;
+  font-size:13px; font-weight:600;
+  transform:translateY(80px); opacity:0; transition:all .3s;
+  z-index:9999; box-shadow:var(--shadow-glass);
+}
+.notif.show{transform:translateY(0); opacity:1;}
+
+/* ══ FLOATING ANIMATION ══════════════════════════════════ */
+@keyframes float {
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-8px);}
+}
+.float-anim{animation:float 4s ease-in-out infinite;}
+</style>
+</head>
+<body>
+<div class="blob-mid"></div>
+
+<!-- ████ SIDEBAR ████████████████████████████████████████ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <img src="/logo.png" alt="aSSIST University" class="logo-img"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div style="display:none;font-size:22px;font-weight:900;color:#A5B4FC;font-style:italic;">a<span style="color:white">SSIST</span></div>
+    <div class="logo-badge">✦ 통합 교강사진 DB</div>
+  </div>
+  <div class="nav-section-label">메인 메뉴</div>
+  <div class="nav-item active" onclick="nav('dashboard')"><span class="ni">📊</span> 대시보드</div>
+  <div class="nav-item" onclick="nav('search')"><span class="ni">🔍</span> 교강사 검색</div>
+  <div class="nav-item" onclick="nav('ai')"><span class="ni">✨</span> AI 강사 추천</div>
+  <div class="nav-section-label">데이터 관리</div>
+  <div class="nav-item" onclick="nav('eval')"><span class="ni">📋</span> 강의평가 업로드</div>
+  <div class="nav-item" onclick="nav('sync')"><span class="ni">🔗</span> 외부 연동 현황</div>
+  <div class="sidebar-footer">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <img src="/emblem.png" alt="" style="width:22px;height:22px;object-fit:contain;filter:brightness(0) invert(1);opacity:.5;" onerror="this.style.display='none'">
+      <span style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);">시스템 정상 운영 중</span>
+    </div>
+    마지막 동기화: 오늘 09:22<br>담당: 교육혁신팀
+  </div>
+</nav>
+
+<!-- ████ MAIN ████████████████████████████████████████████ -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">대시보드</div>
+    <div class="topbar-search">
+      <span style="color:var(--text-muted)">🔍</span>
+      <input type="text" placeholder="교수명, 전공, 태그 검색...">
+    </div>
+    <button class="topbar-btn" onclick="nav('ai')">✨ AI 추천</button>
+    <div class="topbar-avatar">김</div>
+  </header>
+
+  <!-- ══ DASHBOARD ══════════════════════════════════════ -->
+  <div class="page active" id="page-dashboard">
+    <div class="hero">
+      <span class="plus" style="top:20px;left:310px">+</span>
+      <span class="plus" style="top:60px;left:500px">+</span>
+      <span class="plus" style="bottom:24px;left:380px">+</span>
+      <span class="plus" style="top:28px;right:200px">+</span>
+      <div>
+        <div class="hero-label">aSSIST University · Faculty Intelligence</div>
+        <div class="hero-title">교강사 DB
+          <span class="hero-title-blue">한눈에 보기</span>
+        </div>
+        <div class="hero-sub">AI가 127명 교강사 데이터를 실시간 분석합니다.<br>외부 플랫폼 자동 연동 · 평가 AI 분류 · 맞춤 추천까지.</div>
+        <button class="hero-cta" onclick="nav('search')">교강사 검색하기 →</button>
+      </div>
+      <div class="hero-illus float-anim">
+        <svg width="200" height="160" viewBox="0 0 200 160" fill="none">
+          <ellipse cx="100" cy="36" rx="52" ry="14" fill="rgba(99,102,241,0.3)" stroke="rgba(165,180,252,0.5)" stroke-width="2"/>
+          <rect x="48" y="36" width="104" height="56" fill="rgba(99,102,241,0.12)" stroke="rgba(165,180,252,0.4)" stroke-width="2"/>
+          <ellipse cx="100" cy="92" rx="52" ry="14" fill="rgba(99,102,241,0.25)" stroke="rgba(165,180,252,0.4)" stroke-width="2"/>
+          <ellipse cx="100" cy="36" rx="52" ry="14" fill="rgba(20,0,230,0.3)" stroke="rgba(165,180,252,0.6)" stroke-width="2"/>
+          <text x="100" y="40" text-anchor="middle" font-size="11" fill="#A5B4FC" font-weight="700">Faculty DB</text>
+          <rect x="68" y="106" width="14" height="30" rx="4" fill="rgba(99,102,241,0.8)"/>
+          <rect x="88" y="114" width="14" height="22" rx="4" fill="rgba(165,180,252,0.6)"/>
+          <rect x="108" y="98" width="14" height="38" rx="4" fill="rgba(99,102,241,0.9)"/>
+          <rect x="128" y="110" width="14" height="26" rx="4" fill="rgba(165,180,252,0.6)"/>
+          <circle cx="60" cy="60" r="5" fill="#10B981" style="filter:drop-shadow(0 0 4px #10B981)"/>
+          <circle cx="80" cy="70" r="5" fill="#F59E0B" style="filter:drop-shadow(0 0 4px #F59E0B)"/>
+          <circle cx="140" cy="55" r="5" fill="#A5B4FC" style="filter:drop-shadow(0 0 4px #6366F1)"/>
+          <polyline points="55,75 70,65 90,72 110,58 130,62 150,52" stroke="rgba(165,180,252,0.6)" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card blue-glow">
+        <div class="stat-icon si-blue">👥</div>
+        <div><div class="stat-num">127</div><div class="stat-label">등록 교강사</div><div class="stat-sub sub-green">▲ 지난달 대비 +6명</div></div>
+      </div>
+      <div class="stat-card green-glow">
+        <div class="stat-icon si-green">🔗</div>
+        <div><div class="stat-num">89</div><div class="stat-label">외부 연동 완료</div><div class="stat-sub sub-green">전체의 70% 자동 동기화</div></div>
+      </div>
+      <div class="stat-card amber-glow">
+        <div class="stat-icon si-amber">📊</div>
+        <div><div class="stat-num">342</div><div class="stat-label">이번달 평가 수집</div><div class="stat-sub sub-blue">Typeform 218 · 학사 124</div></div>
+      </div>
+      <div class="stat-card purple-glow">
+        <div class="stat-icon si-purple">✨</div>
+        <div><div class="stat-num">23</div><div class="stat-label">AI 추천 활동</div><div class="stat-sub sub-blue">이번달 제안서 AI 활용</div></div>
+      </div>
+    </div>
+
+    <div class="c-grid">
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><span class="ct-ico">👤</span> 최근 프로파일 업데이트</div>
+            <span class="card-link" onclick="nav('search')">전체 보기 →</span>
+          </div>
+          <div class="card-body" style="padding:0 22px;">
+            <table class="f-table">
+              <thead><tr><th>교강사명</th><th>전문 분야</th><th>종합 점수</th><th>가용 상태</th><th>업데이트</th></tr></thead>
+              <tbody>
+                <tr><td><div class="f-name">김민준</div><div class="f-org">연세대경영대학원</div></td><td><span class="tag">#리더십</span><span class="tag">#조직문화</span></td><td><span class="score-chip">91</span></td><td><span class="badge b-green">섭외 가능</span></td><td><span class="sync-src"><span class="sync-dot"></span> LinkedIn · 2시간 전</span></td></tr>
+                <tr><td><div class="f-name">이서연</div><div class="f-org">서울대학교</div></td><td><span class="tag">#데이터분석</span><span class="tag">#AI</span></td><td><span class="score-chip">88</span></td><td><span class="badge b-green">섭외 가능</span></td><td><span class="sync-src"><span class="sync-dot"></span> Scholar · 오늘</span></td></tr>
+                <tr><td><div class="f-name">박지훈</div><div class="f-org">연세대학교</div></td><td><span class="tag">#HR전략</span><span class="tag">#변화관리</span></td><td><span class="score-chip">85</span></td><td><span class="badge b-amber">일정 확인 필요</span></td><td><span class="sync-src">리멤버 · 어제</span></td></tr>
+                <tr><td><div class="f-name">최유나</div><div class="f-org">한양대학교</div></td><td><span class="tag">#마케팅</span><span class="tag">#브랜드</span></td><td><span class="score-chip">79</span></td><td><span class="badge b-green">섭외 가능</span></td><td><span class="sync-src">직접 입력 · 3일 전</span></td></tr>
+                <tr><td><div class="f-name">정현우</div><div class="f-org">KAIST</div></td><td><span class="tag">#혁신전략</span><span class="tag">#스타트업</span></td><td><span class="score-chip">93</span></td><td><span class="badge b-red">섭외 불가</span></td><td><span class="sync-src"><span class="sync-dot"></span> LinkedIn · 4일 전</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head"><div class="card-title"><span class="ct-ico">🤖</span> AI 자동 감지 알림</div></div>
+          <div class="card-body">
+            <div class="alert al-warn"><div class="a-ico">⚠️</div><div><div class="a-title">강의 자료 최신성 이슈</div><div class="a-desc">박지훈 교수 → 수강자 34%가 '교재가 구식'이라 언급</div><div class="a-conf amber">신뢰도 57%</div></div></div>
+            <div class="alert al-good"><div class="a-ico">📈</div><div><div class="a-title">재섭외 의향 높음</div><div class="a-desc">김민준 교수 → 수강자 3명 연속으로 재추천 의향 표명</div><div class="a-conf green">신뢰도 92%</div></div></div>
+            <div class="alert al-warn"><div class="a-ico">🕐</div><div><div class="a-title">시간 배분 조정 필요</div><div class="a-desc">최유나 교수 → 수업 내 이론·실습 비율 불균형 감지</div><div class="a-conf amber">신뢰도 81%</div></div></div>
+            <div class="alert al-info"><div class="a-ico">🔄</div><div><div class="a-title">프로필 갱신 필요</div><div class="a-desc">38명 → 90일 이상 미업데이트 (이메일 자동 발송)</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span class="ct-ico">🔗</span> 외부 연동 현황</div><span class="card-link" onclick="nav('sync')">관리 →</span></div>
+          <div class="card-body">
+            <div class="sync-mini-grid">
+              <div class="sync-mini"><div class="sm-ico">💼</div><div><div class="sm-name">리멤버</div><div class="sm-status">● 연동 중 · 67명</div></div></div>
+              <div class="sync-mini"><div class="sm-ico">🔵</div><div><div class="sm-name">LinkedIn</div><div class="sm-status">● 연동 중 · 52명</div></div></div>
+              <div class="sync-mini"><div class="sm-ico">📚</div><div><div class="sm-name">G. Scholar</div><div class="sm-status">● 연동 중 · 41명</div></div></div>
+              <div class="sync-mini" style="border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.07);"><div class="sm-ico" style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.3);">🏫</div><div><div class="sm-name">학사시스템</div><div class="sm-status" style="color:var(--amber)">⚠ 점검 필요</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SEARCH ══════════════════════════════════════════ -->
+  <div class="page" id="page-search">
+    <div class="hero" style="padding:28px 36px;margin-bottom:20px;">
+      <span class="plus" style="top:18px;left:300px">+</span>
+      <span class="plus" style="bottom:18px;left:440px">+</span>
+      <div>
+        <div class="hero-label">Faculty Search</div>
+        <div class="hero-title" style="font-size:30px;">교강사 검색
+          <span class="hero-title-blue" style="font-size:30px;">데이터베이스</span>
+        </div>
+        <div class="hero-sub">등록된 127명의 교강사를 전공·태그·평가등급으로 필터링하세요.</div>
+      </div>
+      <div class="hero-illus float-anim">
+        <svg width="160" height="120" viewBox="0 0 160 120" fill="none">
+          <circle cx="65" cy="55" r="32" stroke="rgba(165,180,252,0.5)" stroke-width="2" fill="rgba(99,102,241,0.12)"/>
+          <circle cx="65" cy="55" r="20" fill="rgba(99,102,241,0.2)" stroke="rgba(165,180,252,0.4)" stroke-width="1.5"/>
+          <text x="65" y="59" text-anchor="middle" font-size="18" fill="#A5B4FC">🔍</text>
+          <line x1="89" y1="79" x2="112" y2="102" stroke="rgba(165,180,252,0.8)" stroke-width="4" stroke-linecap="round"/>
+          <rect x="110" y="24" width="40" height="8" rx="4" fill="rgba(165,180,252,0.3)"/>
+          <rect x="110" y="38" width="32" height="8" rx="4" fill="rgba(165,180,252,0.15)"/>
+          <rect x="110" y="52" width="36" height="8" rx="4" fill="rgba(165,180,252,0.3)"/>
+          <rect x="110" y="66" width="28" height="8" rx="4" fill="rgba(165,180,252,0.15)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="search-bar">
+      <div class="s-input"><span style="color:var(--text-muted)">🔍</span><input type="text" placeholder="교수명, 전공, 태그 검색..."></div>
+      <select class="f-select"><option>전체 분야</option><option>리더십</option><option>데이터·AI</option><option>마케팅</option><option>재무·회계</option></select>
+      <select class="f-select"><option>가용 상태 전체</option><option>섭외 가능</option><option>일정 확인 필요</option><option>섭외 불가</option></select>
+      <select class="f-select"><option>평점순</option><option>이름순</option><option>최근 업데이트순</option></select>
+      <span style="font-size:12px;color:var(--text-muted);font-weight:600;">▣ 127명</span>
+    </div>
+    <div class="fac-grid" id="fac-grid"></div>
+  </div>
+
+  <!-- ══ PROFILE ═════════════════════════════════════════ -->
+  <div class="page" id="page-profile">
+    <div class="profile-hero">
+      <div class="ph-avatar" id="ph-avatar" style="background:linear-gradient(135deg,#1400E6,#6366F1);">김</div>
+      <div>
+        <div class="ph-name" id="ph-name">김민준</div>
+        <div class="ph-org" id="ph-org">연세대학교 경영대학원 · 경영학 박사</div>
+        <div class="ph-tags" id="ph-tags"><span class="tag">#리더십</span><span class="tag">#조직문화</span><span class="tag">#변화관리</span><span class="tag">#팀빌딩</span></div>
+        <div style="display:flex;gap:12px;margin-top:14px;"><span class="badge b-green">섭외 가능</span><span class="badge b-blue">LinkedIn 연동</span><span class="badge b-purple">리멤버 연동</span></div>
+      </div>
+      <div class="ph-meta">
+        <div class="ph-score" id="ph-score">91</div>
+        <div class="ph-score-lbl">종합 평가점수</div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text-muted);">15개 과정 · 342명 수강</div>
+      </div>
+    </div>
+    <div class="profile-grid">
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head"><div class="card-title"><span class="ct-ico">📊</span> 강의평가 종합</div></div>
+          <div class="card-body">
+            <div class="eval-bar-row"><div class="eb-label">전문성</div><div class="eb-track"><div class="eb-fill" style="width:94%"></div></div><div class="eb-score">94</div></div>
+            <div class="eval-bar-row"><div class="eb-label">전달력</div><div class="eb-track"><div class="eb-fill" style="width:89%"></div></div><div class="eb-score">89</div></div>
+            <div class="eval-bar-row"><div class="eb-label">실무 연계성</div><div class="eb-track"><div class="eb-fill" style="width:92%"></div></div><div class="eb-score">92</div></div>
+            <div class="eval-bar-row"><div class="eb-label">상호작용</div><div class="eb-track"><div class="eb-fill" style="width:88%"></div></div><div class="eb-score">88</div></div>
+            <div class="eval-bar-row"><div class="eb-label">만족도</div><div class="eb-track"><div class="eb-fill" style="width:91%"></div></div><div class="eb-score">91</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span class="ct-ico">🕸</span> 역량 레이더</div></div>
+          <div class="card-body" style="display:flex;justify-content:center;"><canvas id="radarChart" width="260" height="220"></canvas></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head"><div class="card-title"><span class="ct-ico">💬</span> 주관식 AI 분류</div></div>
+          <div class="card-body">
+            <div class="qual-item"><div class="qi-tag"><span class="badge b-blue">전문성 ↑</span></div><div class="qi-text">실무 경험을 바탕으로 한 사례 위주 강의가 인상적. 이론과 실제를 연결하는 방식이 탁월함.</div><div class="qi-conf">✓ 긍정 · 신뢰도 94%</div></div>
+            <div class="qual-item"><div class="qi-tag"><span class="badge b-green">재섭외 의향</span></div><div class="qi-text">다음 과정에서도 꼭 다시 수강하고 싶음. 업무에 바로 적용 가능한 내용이 많아 실질적으로 도움됨.</div><div class="qi-conf">✓ 긍정 · 신뢰도 91%</div></div>
+            <div class="qual-item"><div class="qi-tag"><span class="badge b-amber">개선 필요</span></div><div class="qi-text">질의응답 시간이 부족했음. 더 많은 상호작용 기회가 있었으면 좋겠음.</div><div class="qi-conf">△ 개선 요청 · 신뢰도 78%</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><span class="ct-ico">🚩</span> AI 자동 플래그</div></div>
+          <div class="card-body">
+            <div class="data-row"><div class="info-num">✓</div><div style="flex:1;font-size:12px;color:var(--text-sub);">재섭외 우선순위 <span style="font-weight:700;color:var(--green)">HIGH</span></div><span class="badge b-green">자동 태그</span></div>
+            <div class="data-row"><div class="info-num">✓</div><div style="flex:1;font-size:12px;color:var(--text-sub);">HRD 부문 Top 10% 강사</div><span class="badge b-blue">자동 태그</span></div>
+            <div class="data-row"><div class="info-num">!</div><div style="flex:1;font-size:12px;color:var(--text-sub);">Q&A 시간 불충분 — 3회 연속 언급</div><span class="badge b-amber">주의</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AI ══════════════════════════════════════════════ -->
+  <div class="page" id="page-ai">
+    <div class="hero" style="margin-bottom:24px;">
+      <span class="plus" style="top:20px;left:340px">+</span>
+      <span class="plus" style="bottom:24px;left:470px">+</span>
+      <div>
+        <div class="hero-label">AI Matching Engine</div>
+        <div class="hero-title">AI 강사
+          <span class="hero-title-blue">자동 매칭</span>
+        </div>
+        <div class="hero-sub">교육 니즈를 입력하면 Faculty DB에서 최적의 강사를 자동으로 매칭합니다.</div>
+      </div>
+      <div class="hero-illus float-anim">
+        <svg width="190" height="150" viewBox="0 0 190 150" fill="none">
+          <circle cx="95" cy="65" r="42" fill="rgba(99,102,241,0.15)" stroke="rgba(165,180,252,0.4)" stroke-width="2"/>
+          <text x="95" y="72" text-anchor="middle" font-size="34">🧠</text>
+          <circle cx="28" cy="40" r="14" fill="rgba(16,185,129,0.2)" stroke="rgba(16,185,129,0.5)" stroke-width="1.5"/>
+          <text x="28" y="44" text-anchor="middle" font-size="14">👤</text>
+          <circle cx="28" cy="100" r="14" fill="rgba(245,158,11,0.2)" stroke="rgba(245,158,11,0.5)" stroke-width="1.5"/>
+          <text x="28" y="104" text-anchor="middle" font-size="14">👤</text>
+          <circle cx="162" cy="40" r="14" fill="rgba(139,92,246,0.2)" stroke="rgba(139,92,246,0.5)" stroke-width="1.5"/>
+          <text x="162" y="44" text-anchor="middle" font-size="14">👤</text>
+          <circle cx="162" cy="100" r="14" fill="rgba(99,102,241,0.2)" stroke="rgba(99,102,241,0.5)" stroke-width="1.5"/>
+          <text x="162" y="104" text-anchor="middle" font-size="14">👤</text>
+          <line x1="42" y1="46" x2="56" y2="55" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <line x1="42" y1="94" x2="56" y2="78" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <line x1="134" y1="55" x2="148" y2="46" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <line x1="134" y1="78" x2="148" y2="94" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <rect x="70" y="118" width="50" height="20" rx="10" fill="rgba(20,0,230,0.6)" stroke="rgba(165,180,252,0.4)" stroke-width="1"/>
+          <text x="95" y="131" text-anchor="middle" font-size="10" fill="white" font-weight="700">AI MATCH</text>
+        </svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title"><span class="ct-ico">📝</span> 매칭 조건 입력</div></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div><label class="form-label">기업명 / 기관명</label><input class="form-input" type="text" placeholder="예: 삼성전자, LG화학, 카카오"></div>
+          <div><label class="form-label">교육 대상</label><select class="form-select"><option>임원 (C-Level, 부사장급)</option><option>팀장·중간관리자</option><option>실무자</option></select></div>
+          <div><label class="form-label">교육 주제 / 키워드</label><input class="form-input" type="text" placeholder="예: 리더십, 조직문화, 데이터 분석, AI 활용"></div>
+          <div><label class="form-label">강의 형태</label><select class="form-select"><option>대면 강의</option><option>온라인 (실시간)</option><option>하이브리드</option></select></div>
+        </div>
+        <div style="margin-bottom:16px;"><label class="form-label">교육 목적 / 추가 요구사항</label><textarea class="form-textarea" placeholder="예: MZ세대 팀장을 대상으로 한 리더십 강화 과정. 이론보다 실무 사례 위주 강의 선호. 총 6시간 과정."></textarea></div>
+        <button class="form-btn" onclick="runAI()">✨ AI 강사 매칭 시작</button>
+      </div>
+    </div>
+    <div class="ai-loading" id="ai-loading">
+      <div class="ai-spinner"></div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-sub);">Faculty DB 분석 중 · 127명 교강사 데이터 처리 중...</div>
+    </div>
+    <div class="ai-results" id="ai-results">
+      <div class="card">
+        <div class="card-head"><div class="card-title"><span class="ct-ico">✨</span> AI 추천 결과</div><span class="badge b-blue">3명 추천 완료</span></div>
+        <div class="card-body">
+          <div class="ai-result-card" onclick="nav('profile')">
+            <div class="ai-rank ar1">1</div>
+            <div class="ai-result-info"><div class="ai-result-name">김민준</div><div class="ai-result-org">연세대경영대학원 · HRD 전문가</div><div style="display:flex;gap:6px;margin-top:8px;"><span class="tag">#리더십</span><span class="tag">#조직문화</span><span class="tag">#팀빌딩</span></div><div class="ai-result-reason">임원 대상 리더십 강의 15회 경력. MZ세대 리더십 특화 과정 운영 다수. 실무 중심 케이스 스터디 방식으로 수강 만족도 최상위.</div></div>
+            <div class="ai-match"><div class="ai-match-pct">96%</div><div class="ai-match-lbl">매칭률</div></div>
+          </div>
+          <div class="ai-result-card">
+            <div class="ai-rank ar2">2</div>
+            <div class="ai-result-info"><div class="ai-result-name">정현우</div><div class="ai-result-org">KAIST · 혁신경영 전문가</div><div style="display:flex;gap:6px;margin-top:8px;"><span class="tag">#혁신전략</span><span class="tag">#스타트업</span></div><div class="ai-result-reason">대기업 임원진 대상 혁신 리더십 워크숍 전문. 최신 경영 트렌드와 실무 적용 사례로 높은 재섭외율 보유.</div></div>
+            <div class="ai-match"><div class="ai-match-pct">89%</div><div class="ai-match-lbl">매칭률</div></div>
+          </div>
+          <div class="ai-result-card">
+            <div class="ai-rank ar3">3</div>
+            <div class="ai-result-info"><div class="ai-result-name">이서연</div><div class="ai-result-org">서울대학교 · 경영과학 교수</div><div style="display:flex;gap:6px;margin-top:8px;"><span class="tag">#데이터분석</span><span class="tag">#AI전략</span></div><div class="ai-result-reason">데이터 기반 의사결정 리더십 과정 개발 경험. 이공계 배경의 실증적 접근으로 임원층에서 호평.</div></div>
+            <div class="ai-match"><div class="ai-match-pct">82%</div><div class="ai-match-lbl">매칭률</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EVAL ════════════════════════════════════════════ -->
+  <div class="page" id="page-eval">
+    <div class="hero" style="margin-bottom:24px;">
+      <span class="plus" style="top:22px;left:300px">+</span>
+      <span class="plus" style="bottom:20px;left:450px">+</span>
+      <div>
+        <div class="hero-label">Evaluation AI Pipeline</div>
+        <div class="hero-title">강의평가
+          <span class="hero-title-blue">AI 자동 처리</span>
+        </div>
+        <div class="hero-sub">어떤 도구로 수집한 평가든 업로드하면 AI가 자동으로 표준 카테고리로 분류합니다.</div>
+      </div>
+      <div class="hero-illus float-anim">
+        <svg width="180" height="148" viewBox="0 0 180 148" fill="none">
+          <rect x="30" y="30" width="55" height="72" rx="6" fill="rgba(99,102,241,0.12)" stroke="rgba(165,180,252,0.3)" stroke-width="1.5"/>
+          <rect x="38" y="22" width="55" height="72" rx="6" fill="rgba(99,102,241,0.18)" stroke="rgba(165,180,252,0.35)" stroke-width="1.5"/>
+          <rect x="46" y="14" width="55" height="72" rx="6" fill="rgba(99,102,241,0.08)" stroke="rgba(165,180,252,0.5)" stroke-width="2"/>
+          <line x1="58" y1="34" x2="89" y2="34" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="58" y1="44" x2="89" y2="44" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="58" y1="54" x2="78" y2="54" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M108 50 L128 50" stroke="rgba(165,180,252,0.8)" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M124,46 L130,50 L124,54" fill="none" stroke="rgba(165,180,252,0.8)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="132" y="26" width="42" height="48" rx="8" fill="rgba(20,0,230,0.4)" stroke="rgba(99,102,241,0.5)" stroke-width="1.5"/>
+          <text x="153" y="55" text-anchor="middle" font-size="24">🤖</text>
+          <rect x="32" y="112" width="16" height="28" rx="4" fill="rgba(99,102,241,0.7)"/>
+          <rect x="54" y="118" width="16" height="22" rx="4" fill="rgba(165,180,252,0.5)"/>
+          <rect x="76" y="106" width="16" height="34" rx="4" fill="rgba(99,102,241,0.8)"/>
+          <rect x="98" y="120" width="16" height="20" rx="4" fill="rgba(165,180,252,0.5)"/>
+          <rect x="120" y="114" width="16" height="26" rx="4" fill="rgba(99,102,241,0.7)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-head"><div class="card-title"><span class="ct-ico">📂</span> 파일 업로드</div></div>
+      <div class="card-body">
+        <div class="upload-zone" onclick="showNotif('📂 파일 선택 (목업)')">
+          <div class="u-icon">📂</div>
+          <div class="u-title">파일을 드래그하거나 클릭해서 업로드</div>
+          <div class="u-sub">CSV · Excel(.xlsx) · PDF 지원 · 최대 50MB</div>
+        </div>
+        <div style="font-size:12px;font-weight:800;color:var(--text-sub);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;">연동 도구에서 직접 가져오기</div>
+        <div class="tool-grid">
+          <div class="tool-btn" onclick="showNotif('📝 Typeform 연동')"><div class="tb-ico">📝</div><div class="tb-name">Typeform</div><div class="tb-sub">Zapier 자동 연동</div></div>
+          <div class="tool-btn" onclick="showNotif('📋 구글 폼 연동')"><div class="tb-ico">📋</div><div class="tb-name">Google Forms</div><div class="tb-sub">Apps Script 연동</div></div>
+          <div class="tool-btn" onclick="showNotif('🏫 학사시스템 연동')"><div class="tb-ico">🏫</div><div class="tb-name">학사시스템</div><div class="tb-sub">API / 배치 추출</div></div>
+          <div class="tool-btn" onclick="showNotif('📊 CSV 업로드')"><div class="tb-ico">📊</div><div class="tb-name">기타 / 직접</div><div class="tb-sub">CSV 직접 업로드</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title"><span class="ct-ico">🤖</span> AI 자동 처리 5단계</div><span class="badge b-blue">완전 자동</span></div>
+      <div class="card-body">
+        <div class="step-flow">
+          <div class="step-item"><div class="s-num">1</div><div class="s-ico">📥</div><div class="s-name">데이터 수집</div><div class="s-desc">다양한 도구에서 응답 수집</div></div>
+          <div class="step-item"><div class="s-num">2</div><div class="s-ico">🏷️</div><div class="s-name">문항 분류</div><div class="s-desc">5개 표준 카테고리 자동 매핑</div></div>
+          <div class="step-item"><div class="s-num">3</div><div class="s-ico">📐</div><div class="s-name">점수 정규화</div><div class="s-desc">모든 척도 → 100점 기준 통일</div></div>
+          <div class="step-item"><div class="s-num">4</div><div class="s-ico">💬</div><div class="s-name">주관식 분류</div><div class="s-desc">감성 분류 + 키워드 클러스터링</div></div>
+          <div class="step-item"><div class="s-num">5</div><div class="s-ico">🚩</div><div class="s-name">플래그 산출</div><div class="s-desc">패턴 인식 → 자동 태그 생성</div></div>
+        </div>
+        <div style="margin-top:32px;">
+          <div style="font-size:12px;font-weight:800;color:var(--text-sub);margin-bottom:16px;text-transform:uppercase;letter-spacing:.8px;">5개 표준 평가 카테고리</div>
+          <div class="metric-grid">
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🎓</div><div style="font-size:12px;font-weight:800;color:white;">전문성</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">지식 · 경험 · 최신성</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">📢</div><div style="font-size:12px;font-weight:800;color:white;">전달력</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">발표 · 이해 용이성</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🔧</div><div style="font-size:12px;font-weight:800;color:white;">실무 연계성</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">현업 적용 가능성</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">🤝</div><div style="font-size:12px;font-weight:800;color:white;">상호작용</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Q&A · 참여 유도</div></div>
+            <div class="metric-block"><div style="font-size:24px;margin-bottom:6px;">⭐</div><div style="font-size:12px;font-weight:800;color:white;">전반 만족도</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;">재추천 · 재수강 의향</div></div>
+            <div class="metric-block highlight"><div style="font-size:24px;margin-bottom:6px;">🤖</div><div style="font-size:12px;font-weight:800;color:white;">AI 정규화</div><div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:3px;">모든 척도 → 100점</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SYNC ════════════════════════════════════════════ -->
+  <div class="page" id="page-sync">
+    <div class="hero" style="margin-bottom:24px;">
+      <span class="plus" style="top:22px;left:310px">+</span>
+      <span class="plus" style="bottom:22px;left:450px">+</span>
+      <div>
+        <div class="hero-label">External Platform Sync</div>
+        <div class="hero-title">외부 플랫폼
+          <span class="hero-title-blue">연동 현황</span>
+        </div>
+        <div class="hero-sub">교강사가 이미 사용하는 플랫폼에서 자동으로 데이터를 가져옵니다.</div>
+      </div>
+      <div class="hero-illus float-anim">
+        <svg width="180" height="148" viewBox="0 0 180 148" fill="none">
+          <circle cx="90" cy="74" r="28" fill="rgba(99,102,241,0.18)" stroke="rgba(165,180,252,0.5)" stroke-width="2"/>
+          <text x="90" y="80" text-anchor="middle" font-size="22">🗄️</text>
+          <circle cx="30" cy="34" r="18" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+          <text x="30" y="39" text-anchor="middle" font-size="14">💼</text>
+          <circle cx="150" cy="34" r="18" fill="rgba(0,119,181,0.15)" stroke="rgba(0,119,181,0.5)" stroke-width="2"/>
+          <text x="150" y="39" text-anchor="middle" font-size="14">🔵</text>
+          <circle cx="30" cy="114" r="18" fill="rgba(234,67,53,0.15)" stroke="rgba(234,67,53,0.4)" stroke-width="2"/>
+          <text x="30" y="119" text-anchor="middle" font-size="14">📚</text>
+          <circle cx="150" cy="114" r="18" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.5)" stroke-width="2"/>
+          <text x="150" y="119" text-anchor="middle" font-size="14">🏫</text>
+          <line x1="48" y1="46" x2="66" y2="58" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="132" y1="46" x2="114" y2="58" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="48" y1="102" x2="66" y2="90" stroke="rgba(165,180,252,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <line x1="132" y1="102" x2="114" y2="90" stroke="rgba(245,158,11,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <circle cx="57" cy="52" r="4" fill="#10B981" style="filter:drop-shadow(0 0 4px #10B981)"/>
+          <circle cx="123" cy="52" r="4" fill="#60A5FA" style="filter:drop-shadow(0 0 4px #60A5FA)"/>
+          <circle cx="57" cy="96" r="4" fill="#F87171" style="filter:drop-shadow(0 0 4px #F87171)"/>
+          <circle cx="123" cy="96" r="4" fill="#FCD34D" style="filter:drop-shadow(0 0 4px #FCD34D)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="sync-grid">
+      <div class="sync-card">
+        <div class="sc-head"><div class="sc-name"><div class="sc-ico">💼</div>리멤버</div><span class="badge b-green">연동 중</span></div>
+        <div class="sc-stats"><div class="sc-stat"><div class="sc-num">67</div><div class="sc-lbl">연동 교수</div></div><div class="sc-stat"><div class="sc-num">월 1회</div><div class="sc-lbl">자동 동기화</div></div><div class="sc-stat"><div class="sc-num" style="color:var(--green)">98%</div><div class="sc-lbl">성공률</div></div></div>
+        <div style="margin-bottom:14px;">
+          <div class="prog-row"><div class="prog-label">프로필 커버</div><div class="prog-track"><div class="prog-fill" style="width:98%"></div></div><div class="prog-val">98%</div></div>
+          <div class="prog-row"><div class="prog-label">최신 이력</div><div class="prog-track"><div class="prog-fill green" style="width:87%"></div></div><div class="prog-val" style="color:var(--green)">87%</div></div>
+        </div>
+        <button class="sc-btn" onclick="showNotif('리멤버 연동 추가 (목업)')">+ 교수 연동 추가</button>
+      </div>
+      <div class="sync-card">
+        <div class="sc-head"><div class="sc-name"><div class="sc-ico">🔵</div>LinkedIn</div><span class="badge b-green">연동 중</span></div>
+        <div class="sc-stats"><div class="sc-stat"><div class="sc-num">52</div><div class="sc-lbl">연동 교수</div></div><div class="sc-stat"><div class="sc-num">월 1회</div><div class="sc-lbl">자동 동기화</div></div><div class="sc-stat"><div class="sc-num" style="color:var(--green)">95%</div><div class="sc-lbl">성공률</div></div></div>
+        <div style="margin-bottom:14px;">
+          <div class="prog-row"><div class="prog-label">프로필 커버</div><div class="prog-track"><div class="prog-fill" style="width:95%"></div></div><div class="prog-val">95%</div></div>
+          <div class="prog-row"><div class="prog-label">최신 이력</div><div class="prog-track"><div class="prog-fill green" style="width:82%"></div></div><div class="prog-val" style="color:var(--green)">82%</div></div>
+        </div>
+        <button class="sc-btn" onclick="showNotif('LinkedIn OAuth 연동 (목업)')">+ OAuth 연동 추가</button>
+      </div>
+      <div class="sync-card">
+        <div class="sc-head"><div class="sc-name"><div class="sc-ico">📚</div>Google Scholar</div><span class="badge b-green">연동 중</span></div>
+        <div class="sc-stats"><div class="sc-stat"><div class="sc-num">41</div><div class="sc-lbl">연동 교수</div></div><div class="sc-stat"><div class="sc-num">월 1회</div><div class="sc-lbl">자동 동기화</div></div><div class="sc-stat"><div class="sc-num" style="color:var(--green)">100%</div><div class="sc-lbl">성공률</div></div></div>
+        <div style="margin-bottom:14px;">
+          <div class="prog-row"><div class="prog-label">논문 연동</div><div class="prog-track"><div class="prog-fill" style="width:100%"></div></div><div class="prog-val">100%</div></div>
+          <div class="prog-row"><div class="prog-label">인용지수</div><div class="prog-track"><div class="prog-fill green" style="width:100%"></div></div><div class="prog-val" style="color:var(--green)">100%</div></div>
+        </div>
+        <button class="sc-btn" onclick="showNotif('Scholar URL 추가 (목업)')">+ Scholar URL 추가</button>
+      </div>
+      <div class="sync-card" style="border-color:rgba(245,158,11,0.3);">
+        <div class="sc-head"><div class="sc-name"><div class="sc-ico" style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.3);">🏫</div>학사시스템</div><span class="badge b-amber">점검 필요</span></div>
+        <div class="sc-stats"><div class="sc-stat"><div class="sc-num">124</div><div class="sc-lbl">건수 등록</div></div><div class="sc-stat"><div class="sc-num" style="color:var(--amber)">3일 전</div><div class="sc-lbl">마지막 동기화</div></div><div class="sc-stat"><div class="sc-num" style="color:var(--amber)">점검</div><div class="sc-lbl">상태</div></div></div>
+        <div style="margin-bottom:14px;">
+          <div class="prog-row"><div class="prog-label">연동 상태</div><div class="prog-track"><div class="prog-fill amber" style="width:62%"></div></div><div class="prog-val" style="color:var(--amber)">62%</div></div>
+          <div class="prog-row"><div class="prog-label">오류율</div><div class="prog-track"><div class="prog-fill" style="width:18%;background:linear-gradient(90deg,var(--red),#F87171)"></div></div><div class="prog-val" style="color:var(--red)">18%</div></div>
+        </div>
+        <button class="sc-btn warn" onclick="showNotif('상태 점검 요청 (목업)')">상태 점검 요청</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+const facColors = ['linear-gradient(135deg,#1400E6,#6366F1)','linear-gradient(135deg,#6366F1,#8B5CF6)','linear-gradient(135deg,#10B981,#059669)','linear-gradient(135deg,#F59E0B,#D97706)','linear-gradient(135deg,#EF4444,#DC2626)','linear-gradient(135deg,#0EA5E9,#0284C7)','linear-gradient(135deg,#10B981,#6366F1)','linear-gradient(135deg,#EC4899,#8B5CF6)','linear-gradient(135deg,#14B8A6,#0891B2)'];
+const faculties = [
+  {name:'김민준',org:'연세대경영대학원',tags:['리더십','조직문화','변화관리'],score:91,status:'가능',src:'LinkedIn'},
+  {name:'이서연',org:'서울대학교',tags:['데이터분석','AI','머신러닝'],score:88,status:'가능',src:'Scholar'},
+  {name:'박지훈',org:'연세대학교',tags:['HR전략','변화관리','KSB'],score:85,status:'확인필요',src:'리멤버'},
+  {name:'최유나',org:'한양대학교',tags:['마케팅','브랜드','MZ마케팅'],score:79,status:'가능',src:'직접입력'},
+  {name:'정현우',org:'KAIST',tags:['혁신전략','스타트업','오픈이노베이션'],score:93,status:'불가',src:'LinkedIn'},
+  {name:'윤가희',org:'고려대학교',tags:['재무전략','ESG','KSB'],score:87,status:'가능',src:'LinkedIn'},
+  {name:'임재환',org:'부산대학교',tags:['AI윤리','빅데이터','ML전략'],score:90,status:'가능',src:'Scholar'},
+  {name:'오채린',org:'숙명여자대학교',tags:['퍼실리테이션','팀워크','소통'],score:76,status:'확인필요',src:'직접입력'},
+  {name:'강민서',org:'POSTECH',tags:['기술경영','MBA','글로벌전략'],score:82,status:'가능',src:'LinkedIn'},
+];
+const statusMap = {
+  '가능':'<span class="badge b-green">섭외 가능</span>',
+  '확인필요':'<span class="badge b-amber">일정 확인 필요</span>',
+  '불가':'<span class="badge b-red">섭외 불가</span>',
+};
+const pageNames = {dashboard:'대시보드',search:'교강사 검색',profile:'교수 프로필',ai:'AI 강사 추천',eval:'강의평가 업로드',sync:'외부 연동 현황'};
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')===`nav('${page}')`)n.classList.add('active');});
+  document.getElementById('topbar-title').textContent=pageNames[page]||'';
+  if(page==='search')renderFaculty();
+  if(page==='profile')renderProfile();
+  if(page==='ai'){document.getElementById('ai-loading').classList.remove('show');document.getElementById('ai-results').classList.remove('show');}
+}
+
+function renderFaculty() {
+  document.getElementById('fac-grid').innerHTML=faculties.map((f,i)=>`
+    <div class="fac-card" onclick="showProfile(${i})">
+      <div class="fc-top">
+        <div class="fc-avatar" style="background:${facColors[i]}">${f.name[0]}</div>
+        <div class="fc-score">${f.score}<small>점</small></div>
+      </div>
+      <div class="fc-name">${f.name}</div>
+      <div class="fc-org">${f.org}</div>
+      <div class="fc-tags">${f.tags.map(t=>`<span class="tag">#${t}</span>`).join('')}</div>
+      <div class="fc-footer">${statusMap[f.status]}<span class="sync-src">${f.src!=='직접입력'?'<span class="sync-dot"></span>':''} ${f.src}</span></div>
+    </div>`).join('');
+}
+
+let currentFac=0;
+function showProfile(i){currentFac=i;nav('profile');}
+function renderProfile(){
+  const f=faculties[currentFac];
+  document.getElementById('ph-avatar').style.background=facColors[currentFac];
+  document.getElementById('ph-avatar').textContent=f.name[0];
+  document.getElementById('ph-name').textContent=f.name;
+  document.getElementById('ph-org').textContent=f.org+' · 경영학 박사';
+  document.getElementById('ph-tags').innerHTML=f.tags.map(t=>`<span class="tag">#${t}</span>`).join('');
+  document.getElementById('ph-score').textContent=f.score;
+  renderRadar();
+}
+
+let radarInstance=null;
+function renderRadar(){
+  const ctx=document.getElementById('radarChart').getContext('2d');
+  if(radarInstance)radarInstance.destroy();
+  Chart.defaults.color='rgba(255,255,255,0.5)';
+  radarInstance=new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['전문성','전달력','실무연계','상호작용','만족도'],
+      datasets:[{
+        label:'평가 점수',data:[94,89,92,88,91],
+        backgroundColor:'rgba(99,102,241,0.12)',
+        borderColor:'rgba(165,180,252,0.8)',
+        borderWidth:2.5,
+        pointBackgroundColor:'#6366F1',
+        pointBorderColor:'rgba(165,180,252,0.8)',
+        pointRadius:5,
+      }]
+    },
+    options:{
+      responsive:false,
+      plugins:{legend:{display:false}},
+      scales:{r:{
+        min:60,max:100,
+        ticks:{stepSize:10,font:{size:10},color:'rgba(255,255,255,0.3)',backdropColor:'transparent'},
+        grid:{color:'rgba(255,255,255,0.08)'},
+        angleLines:{color:'rgba(255,255,255,0.08)'},
+        pointLabels:{font:{size:11,weight:'700'},color:'rgba(255,255,255,0.7)'}
+      }}
+    }
+  });
+}
+
+function runAI(){
+  document.getElementById('ai-loading').classList.add('show');
+  document.getElementById('ai-results').classList.remove('show');
+  setTimeout(()=>{document.getElementById('ai-loading').classList.remove('show');document.getElementById('ai-results').classList.add('show');},1900);
+}
+
+function showNotif(msg){
+  const n=document.getElementById('notif');
+  n.textContent=msg; n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),2400);
+}
+
+renderFaculty();
+</script>
+</body>
+</html>

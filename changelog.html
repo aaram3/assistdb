@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>변경사항 인덱스 · aSSIST Faculty DB</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:linear-gradient(135deg,#FEFCF3 0%,#FFF8ED 45%,#F6F2FF 100%);
+  min-height:100vh; color:#1E1B4B; font-size:14px;
+}
+.wrap{max-width:860px; margin:0 auto; padding:48px 32px 80px;}
+
+/* HEADER */
+.page-header{
+  display:flex; align-items:center; gap:20px;
+  margin-bottom:48px; padding-bottom:28px;
+  border-bottom:2px solid rgba(20,0,230,0.10);
+}
+.logo-area img{width:130px; height:auto;}
+.header-text h1{font-size:26px; font-weight:900; letter-spacing:-0.8px; color:#1E1B4B;}
+.header-text p{font-size:13px; color:rgba(30,27,75,0.55); margin-top:5px;}
+.version-badge{
+  margin-left:auto; padding:6px 16px;
+  background:rgba(20,0,230,0.08); border:1px solid rgba(20,0,230,0.20);
+  border-radius:24px; font-size:12px; font-weight:800; color:#1400E6;
+}
+
+/* SECTION */
+.section{margin-bottom:40px;}
+.section-title{
+  font-size:13px; font-weight:800; letter-spacing:1.2px;
+  text-transform:uppercase; color:#6366F1;
+  margin-bottom:16px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-title::before{
+  content:''; display:inline-block;
+  width:4px; height:16px; border-radius:2px;
+  background:linear-gradient(180deg,#1400E6,#6366F1);
+}
+
+/* CHANGE CARD */
+.change-card{
+  background:rgba(255,255,255,0.70);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(0,0,0,0.07);
+  border-radius:16px;
+  padding:22px 24px;
+  margin-bottom:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+  transition:transform .15s, box-shadow .15s;
+}
+.change-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.95);
+}
+.change-head{
+  display:flex; align-items:center; gap:12px; margin-bottom:12px;
+}
+.change-icon{
+  width:36px; height:36px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.ci-design{background:rgba(20,0,230,0.10); border:1px solid rgba(20,0,230,0.18);}
+.ci-color{background:rgba(245,158,11,0.10); border:1px solid rgba(245,158,11,0.20);}
+.ci-layout{background:rgba(99,102,241,0.10); border:1px solid rgba(99,102,241,0.20);}
+.ci-feat{background:rgba(16,185,129,0.10); border:1px solid rgba(16,185,129,0.20);}
+.ci-logo{background:rgba(139,92,246,0.10); border:1px solid rgba(139,92,246,0.20);}
+
+.change-title{font-size:15px; font-weight:800; color:#1E1B4B;}
+.change-sub{font-size:11px; color:rgba(30,27,75,0.45); margin-top:2px;}
+.tag{
+  margin-left:auto; padding:3px 10px;
+  border-radius:20px; font-size:11px; font-weight:700;
+}
+.t-new{background:rgba(16,185,129,0.10); color:#059669; border:1px solid rgba(16,185,129,0.22);}
+.t-update{background:rgba(20,0,230,0.09); color:#1400E6; border:1px solid rgba(20,0,230,0.18);}
+.t-fix{background:rgba(245,158,11,0.10); color:#D97706; border:1px solid rgba(217,119,6,0.22);}
+
+.change-desc{font-size:13px; color:rgba(30,27,75,0.65); line-height:1.7;}
+.change-desc ul{padding-left:18px; margin-top:8px;}
+.change-desc li{margin-bottom:5px;}
+.change-desc code{
+  background:rgba(99,102,241,0.10); border:1px solid rgba(99,102,241,0.18);
+  border-radius:5px; padding:1px 7px; font-size:12px; color:#6366F1;
+  font-family:monospace;
+}
+
+/* DIFF ROW */
+.diff-row{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; margin-top:12px;
+}
+.diff-box{border-radius:10px; padding:12px 14px; font-size:12px; line-height:1.6;}
+.diff-before{background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.15);}
+.diff-after{background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.18);}
+.diff-label{font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; margin-bottom:6px;}
+.diff-before .diff-label{color:rgba(220,38,38,0.7);}
+.diff-after .diff-label{color:rgba(5,150,105,0.8);}
+.diff-val{font-family:monospace; color:#1E1B4B;}
+
+/* COLOR SWATCH */
+.swatch-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;}
+.swatch{
+  display:flex; align-items:center; gap:8px;
+  padding:6px 12px; border-radius:8px;
+  background:rgba(255,255,255,0.60); border:1px solid rgba(0,0,0,0.07);
+  font-size:11px; font-weight:600; color:#1E1B4B;
+}
+.swatch-dot{width:16px; height:16px; border-radius:4px; flex-shrink:0;}
+
+/* TIMELINE */
+.timeline{position:relative; padding-left:24px;}
+.timeline::before{
+  content:''; position:absolute; left:7px; top:4px;
+  width:2px; height:calc(100% - 8px);
+  background:linear-gradient(180deg,rgba(20,0,230,0.3),rgba(99,102,241,0.1));
+}
+.tl-item{position:relative; margin-bottom:18px;}
+.tl-item::before{
+  content:''; position:absolute; left:-21px; top:4px;
+  width:10px; height:10px; border-radius:50%;
+  background:#1400E6; border:2px solid rgba(20,0,230,0.25);
+  box-shadow:0 0 0 3px rgba(20,0,230,0.08);
+}
+.tl-title{font-size:13px; font-weight:700; color:#1E1B4B; margin-bottom:3px;}
+.tl-desc{font-size:12px; color:rgba(30,27,75,0.55); line-height:1.6;}
+
+/* FOOTER */
+.page-footer{
+  margin-top:56px; padding-top:24px;
+  border-top:1px solid rgba(0,0,0,0.07);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.footer-text{font-size:12px; color:rgba(30,27,75,0.40);}
+.back-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg,#1400E6,#6366F1);
+  color:white; border:none; border-radius:24px;
+  padding:9px 20px; font-size:13px; font-weight:700;
+  cursor:pointer; text-decoration:none; transition:all .15s;
+  font-family:inherit;
+  box-shadow:0 4px 16px rgba(20,0,230,0.20);
+}
+.back-btn:hover{transform:translateY(-1px); box-shadow:0 6px 24px rgba(20,0,230,0.28);}
+
+hr.divider{border:none; border-top:1px solid rgba(0,0,0,0.07); margin:32px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="logo-area">
+      <img src="/logo.png" alt="aSSIST University" onerror="this.style.display='none'">
+    </div>
+    <div class="header-text">
+      <h1>변경사항 인덱스</h1>
+      <p>aSSIST University 통합 교강사진 DB · 목업 사이트 디자인 변경 기록</p>
+    </div>
+    <div class="version-badge">v4.0 → v4.4</div>
+  </div>
+
+  <!-- SECTION 1: 작업 타임라인 -->
+  <div class="section">
+    <div class="section-title">작업 타임라인</div>
+    <div class="change-card">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-title">v4.0 · 초기 목업 완성 (teal 테마)</div>
+          <div class="tl-desc">Chart.js 레이더 차트, 교강사 카드 그리드, AI 추천 시뮬레이션 포함 6페이지 SPA 구성. 포인트 컬러 #028090(teal).</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-title">v4.1 · aSSIST 브랜딩 1차 적용</div>
+          <div class="tl-desc">다크 네이비 사이드바(#0B0C2A), aSSIST 블루(#1400E6) 포인트, 이탤릭 로고 워드마크 텍스트, Noto Sans KR 적용.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-title">v4.2 · 프리픽 템플릿 스타일 리디자인</div>
+          <div class="tl-desc">밝은 라벤더 배경(#F2F3FF), 실제 로고 PNG 적용, 히어로 아웃라인 텍스트, 통일된 SVG 인포그래픽, 흰색 사이드바.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-title">v4.3 · 아웃라인 텍스트 → 단색 수정</div>
+          <div class="tl-desc">히어로 제목 두 번째 줄 <code>-webkit-text-stroke</code> 제거, <code>color: var(--blue)</code> 단색으로 가독성 개선.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-title">v4.3 · 글라스모피즘 + 3D 전면 리디자인</div>
+          <div class="tl-desc">딥 네이비(#070B24) 배경, backdrop-filter blur(20px), 3D perspective hover transform, 발광(glow) 효과, 플로팅 SVG 일러스트 애니메이션.</div>
+        </div>
+        <div class="tl-item" style="margin-bottom:0;">
+          <div class="tl-title">v4.4 · 아이보리 라이트 글라스모피즘 (현재)</div>
+          <div class="tl-desc">배경을 아이보리 크림 그라디언트로 전환, 카드 유리 효과 밝게 조정, 텍스트 다크 계열, 로고 원본 색상 적용, 레이더 차트 다크 팔레트.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: 색상 시스템 변경 -->
+  <div class="section">
+    <div class="section-title">색상 시스템 변경 (v4.3 → v4.4)</div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-color">🎨</div>
+        <div><div class="change-title">배경 색상</div><div class="change-sub">body background</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="diff-row">
+        <div class="diff-box diff-before">
+          <div class="diff-label">Before (다크)</div>
+          <div class="diff-val">#070B24 (딥 네이비)</div>
+        </div>
+        <div class="diff-box diff-after">
+          <div class="diff-label">After (아이보리)</div>
+          <div class="diff-val">#FEFCF3 → #FFF8ED → #F6F2FF<br>135deg 그라디언트</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-color">✍️</div>
+        <div><div class="change-title">텍스트 색상</div><div class="change-sub">--text, --text-sub, --text-muted</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="diff-row">
+        <div class="diff-box diff-before">
+          <div class="diff-label">Before</div>
+          <div class="diff-val">--text: rgba(255,255,255,0.95)<br>--text-sub: rgba(255,255,255,0.60)<br>--text-muted: rgba(255,255,255,0.35)</div>
+        </div>
+        <div class="diff-box diff-after">
+          <div class="diff-label">After</div>
+          <div class="diff-val">--text: #1E1B4B<br>--text-sub: rgba(30,27,75,0.62)<br>--text-muted: rgba(30,27,75,0.38)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-color">🪟</div>
+        <div><div class="change-title">글라스 카드 투명도</div><div class="change-sub">--glass-card, --border</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="diff-row">
+        <div class="diff-box diff-before">
+          <div class="diff-label">Before</div>
+          <div class="diff-val">--glass-card: rgba(255,255,255,0.07)<br>--border: rgba(255,255,255,0.12)<br>shadow: rgba(0,0,0,0.40)</div>
+        </div>
+        <div class="diff-box diff-after">
+          <div class="diff-label">After</div>
+          <div class="diff-val">--glass-card: rgba(255,255,255,0.58)<br>--border: rgba(0,0,0,0.07)<br>shadow: rgba(0,0,0,0.07)</div>
+        </div>
+      </div>
+      <div class="change-desc" style="margin-top:12px;">
+        어두운 배경에서는 낮은 불투명도(7%)로 유리 효과를 냈으나, 밝은 배경에서는 58%로 높여 카드가 배경 위에서 선명하게 구분되도록 조정.
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-color">🌈</div>
+        <div><div class="change-title">배경 블롭(Blob) 색상</div><div class="change-sub">body::before, body::after, .blob-mid</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="diff-row">
+        <div class="diff-box diff-before">
+          <div class="diff-label">Before</div>
+          <div class="diff-val">인디고 0.28 · 블루 0.32 · 퍼플 0.12</div>
+        </div>
+        <div class="diff-box diff-after">
+          <div class="diff-label">After</div>
+          <div class="diff-val">인디고 0.10 · 웜앰버 0.08 · 퍼플 0.06</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: 컴포넌트 변경 -->
+  <div class="section">
+    <div class="section-title">컴포넌트별 변경사항</div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-logo">🏫</div>
+        <div><div class="change-title">aSSIST 로고 이미지</div><div class="change-sub">sidebar .logo-img</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="change-desc">
+        <ul>
+          <li>다크 배경 시절 적용했던 <code>filter: brightness(0) invert(1)</code> 제거</li>
+          <li>원본 PNG 색상 그대로 표시 (<code>opacity: 1</code>)</li>
+          <li>사이드바 배경이 아이보리 계열로 변경되어 원본 로고가 자연스럽게 보임</li>
+          <li>하단 엠블럼 로고도 동일하게 필터 제거 (<code>opacity: 0.7</code>만 유지)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-layout">📊</div>
+        <div><div class="change-title">사이드바</div><div class="change-sub">.sidebar, .nav-item, .logo-badge</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="diff-row">
+        <div class="diff-box diff-before">
+          <div class="diff-label">Before</div>
+          <div class="diff-val">background: rgba(7,11,36,0.70)<br>nav active: rgba(20,0,230,0.18)<br>badge color: #A5B4FC</div>
+        </div>
+        <div class="diff-box diff-after">
+          <div class="diff-label">After</div>
+          <div class="diff-val">background: rgba(255,252,243,0.75)<br>nav active: rgba(20,0,230,0.08)<br>badge color: #1400E6</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-layout">🔝</div>
+        <div><div class="change-title">탑바 (Topbar)</div><div class="change-sub">.topbar, .topbar-search</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="change-desc">
+        배경 <code>rgba(7,11,36,0.60)</code> → <code>rgba(255,252,243,0.78)</code>로 변경. 검색창 배경도 다크 유리에서 밝은 유리로 전환.
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-design">🃏</div>
+        <div><div class="change-title">뱃지 & 태그</div><div class="change-sub">.badge, .tag</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="change-desc">
+        <ul>
+          <li>밝은 배경에서 텍스트 가독성 위해 색상 불투명도 조정</li>
+          <li><code>.b-green</code>: 텍스트 <code>#6EE7B7</code> → <code>#059669</code> (더 진하게)</li>
+          <li><code>.b-amber</code>: 텍스트 <code>#FCD34D</code> → <code>#D97706</code> (더 진하게)</li>
+          <li><code>.tag</code>: 배경 0.15 → 0.08, 텍스트 <code>#A5B4FC</code> → <code>var(--indigo)</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-design">📋</div>
+        <div><div class="change-title">알림 카드 (Alert)</div><div class="change-sub">.al-warn, .al-good, .al-danger, .al-info</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="change-desc">
+        배경 불투명도 0.10 → 0.07로 낮춤. 제목 텍스트 <code>color: white</code> → <code>color: var(--text)</code>로 변경해 어두운 텍스트로 가독성 확보.
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-design">📈</div>
+        <div><div class="change-title">레이더 차트</div><div class="change-sub">Chart.js radarChart</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="diff-row">
+        <div class="diff-box diff-before">
+          <div class="diff-label">Before (화이트 계열)</div>
+          <div class="diff-val">borderColor: rgba(165,180,252,0.8)<br>grid: rgba(255,255,255,0.08)<br>label: rgba(255,255,255,0.7)</div>
+        </div>
+        <div class="diff-box diff-after">
+          <div class="diff-label">After (다크 계열)</div>
+          <div class="diff-val">borderColor: rgba(20,0,230,0.6)<br>grid: rgba(0,0,0,0.07)<br>label: rgba(30,27,75,0.70)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="change-card">
+      <div class="change-head">
+        <div class="change-icon ci-feat">🎯</div>
+        <div><div class="change-title">3D 호버 · 그림자 강도 조정</div><div class="change-sub">card:hover, fac-card:hover, stat-card hover glow</div></div>
+        <span class="tag t-update">UPDATE</span>
+      </div>
+      <div class="change-desc">
+        3D transform 값은 동일하게 유지. 그림자 강도를 밝은 배경에 맞게 낮춤.
+        <ul>
+          <li>카드 호버 shadow: <code>rgba(0,0,0,0.5)</code> → <code>rgba(0,0,0,0.10)</code></li>
+          <li>교강사 카드 hover glow: <code>rgba(99,102,241,0.18)</code> → <code>rgba(99,102,241,0.08)</code></li>
+          <li>glow 효과 컬러 강도: 0.35~0.45 → 0.12~0.20</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: 최종 색상 팔레트 -->
+  <div class="section">
+    <div class="section-title">최종 디자인 토큰 (v4.4)</div>
+    <div class="change-card">
+      <div class="change-desc">
+        <div style="font-size:12px;font-weight:800;color:rgba(30,27,75,0.5);margin-bottom:12px;text-transform:uppercase;letter-spacing:.8px;">배경 팔레트</div>
+        <div class="swatch-row" style="margin-bottom:20px;">
+          <div class="swatch"><div class="swatch-dot" style="background:#FEFCF3;border:1px solid rgba(0,0,0,0.1);"></div>#FEFCF3 아이보리</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#FFF8ED;border:1px solid rgba(0,0,0,0.1);"></div>#FFF8ED 크림</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#F6F2FF;border:1px solid rgba(0,0,0,0.1);"></div>#F6F2FF 라벤더</div>
+        </div>
+        <div style="font-size:12px;font-weight:800;color:rgba(30,27,75,0.5);margin-bottom:12px;text-transform:uppercase;letter-spacing:.8px;">브랜드 컬러</div>
+        <div class="swatch-row" style="margin-bottom:20px;">
+          <div class="swatch"><div class="swatch-dot" style="background:#1400E6;"></div>#1400E6 aSSIST Blue</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#6366F1;"></div>#6366F1 Indigo</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#8B5CF6;"></div>#8B5CF6 Purple</div>
+        </div>
+        <div style="font-size:12px;font-weight:800;color:rgba(30,27,75,0.5);margin-bottom:12px;text-transform:uppercase;letter-spacing:.8px;">상태 컬러</div>
+        <div class="swatch-row">
+          <div class="swatch"><div class="swatch-dot" style="background:#059669;"></div>#059669 Green</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#D97706;"></div>#D97706 Amber</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#DC2626;"></div>#DC2626 Red</div>
+          <div class="swatch"><div class="swatch-dot" style="background:#1E1B4B;"></div>#1E1B4B Text Dark</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: 파일 구조 -->
+  <div class="section">
+    <div class="section-title">파일 구조</div>
+    <div class="change-card">
+      <div class="change-desc">
+        <div style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:10px;padding:16px;font-family:monospace;font-size:13px;line-height:2;">
+          📁 C:\Users\user\교수진\<br>
+          &nbsp;&nbsp;📁 mocksite\<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#1400E6;font-weight:700;">📄 index.html</span> &nbsp;<span style="color:#059669;font-size:11px;">← 메인 목업 사이트 (v4.4)</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6366F1;font-weight:700;">📄 changelog.html</span> &nbsp;<span style="color:#059669;font-size:11px;">← 현재 파일 (변경사항 인덱스)</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;🖼️ logo.png &nbsp;<span style="color:#D97706;font-size:11px;">← aSSIST 기본형 로고</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;🖼️ emblem.png &nbsp;<span style="color:#D97706;font-size:11px;">← aSSIST 엠블럼</span><br>
+          &nbsp;&nbsp;📄 교수진_데이터베이스_업무혁신_기획서_v4.md<br>
+          &nbsp;&nbsp;📄 교수진_데이터베이스_업무혁신.pptx<br>
+          &nbsp;&nbsp;📁 .claude\<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;📄 launch.json &nbsp;<span style="color:#D97706;font-size:11px;">← Node.js 서버 설정 (port 3399)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-text">
+      aSSIST University 통합 교강사진 DB · 교육혁신팀<br>
+      목업 서버: <code style="background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:4px;font-size:11px;color:#6366F1;">http://localhost:3399</code>
+    </div>
+    <a href="/" class="back-btn">← 목업 사이트로 돌아가기</a>
+  </div>
+
+</div>
+</body>
+</html>
